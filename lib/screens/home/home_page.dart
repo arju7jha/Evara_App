@@ -24,7 +24,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> fetchProducts() async {
-    final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/sku/offers_sku.php');
+    final url = Uri.parse(
+        'https://namami-infotech.com/EvaraBackend/src/sku/offers_sku.php');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -64,7 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 decoration: BoxDecoration(
                   color: Color(0xffffffff),
                   borderRadius: BorderRadius.circular(25.0),
-                  border: Border.all(color: Colors.black87, width: 2.0), // Add this line
+                  border: Border.all(
+                      color: Colors.black87, width: 2.0), // Add this line
                 ),
                 child: Row(
                   children: [
@@ -167,7 +169,8 @@ class _HomeScreenState extends State<HomeScreen> {
               //height: 250,
               child: GridView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(), // Prevents the GridView from scrolling
+                physics:
+                    NeverScrollableScrollPhysics(), // Prevents the GridView from scrolling
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 15,
@@ -189,7 +192,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       productDetails: product['product_details'] ?? '',
                       salts: product['salts'] ?? '',
                       offer: product['offer'] ?? '',
-
                     ),
                   );
                 },
@@ -346,7 +348,6 @@ class _HomeScreenState extends State<HomeScreen> {
 //   }
 // }
 
-
 class ProductCard extends StatelessWidget {
   final String imagePath;
   final String name;
@@ -419,7 +420,8 @@ class ProductCard extends StatelessWidget {
                       ),
                       child: Text(
                         offer,
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
                   Container(
@@ -427,12 +429,12 @@ class ProductCard extends StatelessWidget {
                     width: double.infinity,
                     child: imagePath.isNotEmpty
                         ? Image.network(
-                      imagePath,
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Center(child: Text('No Image Uploaded'));
-                      },
-                    )
+                            imagePath,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Center(child: Text('No Image Uploaded'));
+                            },
+                          )
                         : Center(child: Text('No Image Uploaded')),
                   ),
                   Padding(
@@ -442,9 +444,11 @@ class ProductCard extends StatelessWidget {
                         children: [
                           Text(
                             name,
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
                             maxLines: 1,
-                            overflow: TextOverflow.ellipsis, // Truncate with ellipsis
+                            overflow:
+                                TextOverflow.ellipsis, // Truncate with ellipsis
                           ),
                           SizedBox(height: 4),
                           Text(
@@ -457,22 +461,101 @@ class ProductCard extends StatelessWidget {
                           ),
                           SizedBox(height: 8),
                           Obx(() {
-                            final isInCart = cartController.isInCart(medicineId);
+                            final isInCart =
+                                cartController.isInCart(medicineId);
                             return ElevatedButton(
                               onPressed: () {
                                 if (userController.isLoggedIn.value) {
                                   cartController.toggleCartItem(medicineId);
-                                  if (isInCart) {
-                                    Get.snackbar('Removed', '$name removed from cart');
-                                  } else {
-                                    Get.snackbar('Added', '$name added to cart');
-                                  }
+                                  Get.snackbar(
+                                    isInCart ? 'Item removed' : 'Item added',
+                                    isInCart
+                                        ? '$name removed from cart'
+                                        : '$name added to cart',
+                                    backgroundColor:
+                                        Colors.black, // Custom background color
+                                    colorText: Colors
+                                        .orangeAccent, // Custom text color
+                                    snackPosition: SnackPosition.BOTTOM,
+                                    margin: EdgeInsets.all(16.0),
+                                    borderRadius: 8.0, // Border radius
+                                    isDismissible:
+                                        true, // Allow dismissing by tapping outside
+
+                                    //dismissDirection: SnackDismissDirection.HORIZONTAL, // Dismiss direction
+                                    forwardAnimationCurve:
+                                        Curves.easeOut, // Animation curve
+                                    reverseAnimationCurve: Curves.easeIn,
+                                    icon: isInCart
+                                        ? Icon(
+                                            Icons.remove_shopping_cart,
+                                            color: Colors.deepOrange,
+                                          )
+                                        : Icon(Icons.add_shopping_cart,
+                                            color: Colors.green), // Custom icon
+                                    shouldIconPulse:
+                                        true, // Animated icon pulse
+                                    duration: Duration(
+                                        seconds: 3), // Show for 3 seconds
+                                  );
                                 } else {
-                                  Get.snackbar('Login Required', 'Please log in to add items to the cart');
+                                  Get.snackbar(
+                                    'Login Required',
+                                    'Please log in to add items to the cart',
+                                    backgroundColor: Colors.orangeAccent,
+                                    colorText: Colors.black,
+                                    snackPosition: SnackPosition.BOTTOM,
+                                    margin: EdgeInsets.all(16.0),
+                                  );
                                 }
                               },
-                              child: Text(isInCart ? 'Go to Cart' : 'Add to Cart'),
+                              child:
+                                  Text(isInCart ? 'Go to Cart' : 'Add to Cart'),
                             );
+                            // return ElevatedButton(
+                            //   onPressed: () {
+                            //     if (userController.isLoggedIn.value) {
+                            //       cartController.toggleCartItem(medicineId);
+                            //       final isInCart = cartController.isInCart(medicineId);
+                            //
+                            //       // Show a custom Snackbar
+                            //       Get.snackbar(
+                            //         isInCart ? 'Item removed' : 'Item added',
+                            //         isInCart ? '$name removed from cart' : '$name added to cart',
+                            //         backgroundColor: Colors.blueGrey, // Custom background color
+                            //         colorText: Colors.white, // Custom text color
+                            //         icon: isInCart ? Icon(Icons.remove_shopping_cart) : Icon(Icons.add_shopping_cart), // Custom icon
+                            //         shouldIconPulse: true, // Animated icon pulse
+                            //         duration: Duration(seconds: 3), // Show for 3 seconds
+                            //       );
+                            //     } else {
+                            //       Get.snackbar(
+                            //         'Login Required',
+                            //         'Please log in to add items to the cart',
+                            //         backgroundColor: Colors.red, // Custom background color
+                            //         colorText: Colors.white, // Custom text color
+                            //         duration: Duration(seconds: 3), // Show for 3 seconds
+                            //       );
+                            //     }
+                            //   },
+                            //   child: Text(isInCart ? 'Go to Cart' : 'Add to Cart'),
+                            // );
+
+                            // return ElevatedButton(
+                            //   onPressed: () {
+                            //     if (userController.isLoggedIn.value) {
+                            //       cartController.toggleCartItem(medicineId);
+                            //       if (isInCart) {
+                            //         Get.snackbar('Removed', '$name removed from cart');
+                            //       } else {
+                            //         Get.snackbar('Added', '$name added to cart');
+                            //       }
+                            //     } else {
+                            //       Get.snackbar('Login Required', 'Please log in to add items to the cart');
+                            //     }
+                            //   },
+                            //   child: Text(isInCart ? 'Go to Cart' : 'Add to Cart'),
+                            // );
                           }),
                         ],
                       ),
@@ -487,10 +570,6 @@ class ProductCard extends StatelessWidget {
     );
   }
 }
-
-
-
-
 
 // import 'package:flutter/material.dart';
 // import 'package:carousel_slider/carousel_slider.dart';
@@ -889,9 +968,6 @@ class ProductCard extends StatelessWidget {
 //   }
 // }
 //
-
-
-
 
 // import 'package:flutter/material.dart';
 // import 'package:carousel_slider/carousel_slider.dart';
