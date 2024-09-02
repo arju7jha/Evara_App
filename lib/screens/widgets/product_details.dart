@@ -180,7 +180,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../controller/UserController.dart';
 import '../../controller/cart_component/CartController.dart';
 
@@ -211,7 +210,6 @@ class ProductDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final CartController cartController = Get.find<CartController>();
     final UserController userController = Get.find<UserController>();
-
 
     return Scaffold(
       appBar: AppBar(
@@ -306,40 +304,152 @@ class ProductDetailsPage extends StatelessWidget {
                           SizedBox(height: 10),
                           Text('Salts: $salts', style: TextStyle(fontSize: 16)),
                           SizedBox(height: 10),
+                          // Product information
                           // Obx(() {
-                          //   final isInCart =
-                          //       cartController.isInCart(medicineId);
+                          //   final isInCart = cartController.cartItems.any((item) => item.name == name);
                           //   return ElevatedButton(
                           //     onPressed: () {
-                          //       cartController.toggleCartItem(medicineId);
+                          //       if (userController.isLoggedIn.value) {
+                          //         cartController.addItem(CartItem(name: name, price: double.parse(ptr)));
+                          //         Get.snackbar(
+                          //           'Item added',
+                          //           '$name added to cart',
+                          //           backgroundColor: Colors.black,
+                          //           colorText: Colors.orangeAccent,
+                          //           snackPosition: SnackPosition.BOTTOM,
+                          //         );
+                          //       } else {
+                          //         Get.snackbar(
+                          //           'Login Required',
+                          //           'Please log in to add items to the cart',
+                          //           backgroundColor: Colors.orangeAccent,
+                          //           colorText: Colors.black,
+                          //           snackPosition: SnackPosition.BOTTOM,
+                          //         );
+                          //       }
                           //     },
-                          //     style: ElevatedButton.styleFrom(
-                          //       backgroundColor: Color(0xff033464),
-                          //       shape: RoundedRectangleBorder(
-                          //         borderRadius: BorderRadius.circular(
-                          //             20), // Border radius
-                          //       ),
-                          //     ),
-                          //     child:
-                          //         Text(isInCart ? 'Go to Cart' : 'Add to Cart'),
+                          //     child: Text(isInCart ? 'Go to Cart' : 'Add to Cart'),
                           //   );
                           // }),
                           Obx(() {
-                            final isInCart = cartController.isInCart(medicineId);
-                            return ElevatedButton(
+                            final quantity = cartController.getProductDetails(medicineId)?['quantity'] ?? 0;
+                            return quantity > 0
+                                ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                  icon: Icon(Icons.remove_circle_outline),
+                                  onPressed: () {
+                                    cartController.updateCartItem(
+                                      medicineId,
+                                      {
+                                        'imagePath': imagePath,
+                                        'name': name,
+                                        'mrp': mrp,
+                                        'ptr': ptr,
+                                        'companyName': companyName,
+                                        'productDetails': productDetails,
+                                        'salts': salts,
+                                        'offer': offer,
+                                      },
+                                      quantity - 1,
+                                    );
+                                  },
+                                ),
+                                Container(
+                                  width: 40,
+                                  height: 30,
+                                  child: TextField(
+                                    keyboardType: TextInputType.number,
+                                    textAlign: TextAlign.center,
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                                    ),
+                                    controller: TextEditingController(text: quantity.toString()),
+                                    onSubmitted: (value) {
+                                      final newQuantity = int.tryParse(value) ?? 0;
+                                      cartController.updateCartItem(
+                                        medicineId,
+                                        {
+                                          'imagePath': imagePath,
+                                          'name': name,
+                                          'mrp': mrp,
+                                          'ptr': ptr,
+                                          'companyName': companyName,
+                                          'productDetails': productDetails,
+                                          'salts': salts,
+                                          'offer': offer,
+                                        },
+                                        newQuantity,
+                                      );
+                                    },
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.add_circle_outline),
+                                  onPressed: () {
+                                    cartController.updateCartItem(
+                                      medicineId,
+                                      {
+                                        'imagePath': imagePath,
+                                        'name': name,
+                                        'mrp': mrp,
+                                        'ptr': ptr,
+                                        'companyName': companyName,
+                                        'productDetails': productDetails,
+                                        'salts': salts,
+                                        'offer': offer,
+                                      },
+                                      quantity + 1,
+                                    );
+                                  },
+                                ),
+                              ],
+                            )
+                                : ElevatedButton(
                               onPressed: () {
                                 if (userController.isLoggedIn.value) {
-                                  cartController.toggleCartItem(medicineId);
-                                  if (isInCart) {
-                                    Get.snackbar('Removed', '$name removed from cart');
-                                  } else {
-                                    Get.snackbar('Added', '$name added to cart');
-                                  }
+                                  Get.snackbar(
+                                    'Item added',
+                                    '$name added to cart',
+                                    backgroundColor: Colors.black,
+                                    colorText: Colors.orangeAccent,
+                                    snackPosition: SnackPosition.BOTTOM,
+                                    margin: EdgeInsets.all(16.0),
+                                    borderRadius: 8.0, // Border radius
+                                    isDismissible: true, // Allow dismissing by tapping outside
+
+                                  );
+                                  cartController.updateCartItem(
+                                    medicineId,
+                                    {
+                                      'imagePath': imagePath,
+                                      'name': name,
+                                      'mrp': mrp,
+                                      'ptr': ptr,
+                                      'companyName': companyName,
+                                      'productDetails': productDetails,
+                                      'salts': salts,
+                                      'offer': offer,
+                                    },
+                                    1,
+                                  );
                                 } else {
-                                  Get.snackbar('Login Required', 'Please log in to add items to the cart');
+                                  Get.snackbar(
+                                    'Login Required',
+                                    'Please log in to add items to the cart',
+                                    backgroundColor: Colors.orangeAccent,
+                                    colorText: Colors.black,
+                                    snackPosition: SnackPosition.BOTTOM,
+                                    margin: EdgeInsets.all(16.0),
+                                    borderRadius: 8.0, // Border radius
+                                    isDismissible: true, // Allow dismissing by tapping outside
+
+                                  );
                                 }
                               },
-                              child: Text(isInCart ? 'Go to Cart' : 'Add to Cart'),
+                              child: Text('Add to Cart'),
                             );
                           }),
                         ],

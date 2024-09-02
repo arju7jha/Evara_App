@@ -1,4 +1,3 @@
-// lib/controllers/user_controller.dart
 
 import 'dart:convert';
 
@@ -10,6 +9,7 @@ class UserController extends GetxController {
   var userName = ''.obs;
   var email = ''.obs;
   var phoneNumber = ''.obs;
+  var token = ''.obs;
 
   @override
   void onInit() {
@@ -30,9 +30,12 @@ class UserController extends GetxController {
           final userDataInfo = responseData['userData'];
           print(userDataInfo.toString());
           isLoggedIn.value = true;
+
           userName.value = userDataInfo['email'] ?? 'User';
           email.value = userDataInfo['email'] ?? 'No Email';
           phoneNumber.value = userDataInfo['phone_number'] ?? 'No Phone Number';
+          token.value = userDataInfo['token'] ?? 'no token found';
+          print("asdsdfafew"+userDataInfo.toString());
         }
       }
     }
