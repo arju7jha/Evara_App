@@ -13,29 +13,30 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
+
 class _HomeScreenState extends State<HomeScreen> {
   List<dynamic> popularMedicines = [];
   List<dynamic> bestSellingProducts = [];
+  List<dynamic> banners = [];
 
   @override
   void initState() {
     super.initState();
     fetchProducts();
+    fetchBanners();
   }
 
   Future<void> fetchProducts() async {
-    final url = Uri.parse(
-        'https://namami-infotech.com/EvaraBackend/src/sku/offers_sku.php');
+    final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/sku/offers_sku.php');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
-        // Parse the JSON response
         final data = json.decode(response.body);
         setState(() {
           popularMedicines = data['medicines'] ?? [];
           //bestSellingProducts = data['medicines'] ?? [];
         });
-        print('API Response: ${response.body}'); // Print the API response
+        print('API Response: ${response.body}');
       } else {
         print('Failed to load products');
       }
@@ -43,6 +44,60 @@ class _HomeScreenState extends State<HomeScreen> {
       print('Error: $e');
     }
   }
+
+  Future<void> fetchBanners() async {
+    final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/banner/get_banner.php');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          banners = data['data'] ?? [];
+        });
+        print('Banners Response: ${response.body}');
+      } else {
+        print('Failed to load banners');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Future<void> fetchProductDetails(String medicineId) async {
+    final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/sku/get_sku.php?medicine_id=$medicineId');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data != null && data['medicine'] != null) {
+          final productDetails = data['medicine'];
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProductDetailsPage(
+                imagePath: productDetails['image_url'] ?? '',
+                name: productDetails['name'] ?? '',
+                mrp: '${productDetails['mrp'] ?? '0.00'}',
+                ptr: '${productDetails['ptr'] ?? '0.00'}',
+                companyName: productDetails['company_name'] ?? '',
+                productDetails: productDetails['product_details'] ?? '',
+                salts: productDetails['salts'] ?? '',
+                offer: productDetails['formatted_offer'] ?? '',
+                medicineId: medicineId, // This is now passed as String
+              ),
+            ),
+          );
+        } else {
+          print('Product details not found.');
+        }
+      } else {
+        print('Failed to load product details');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -65,8 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 decoration: BoxDecoration(
                   color: Color(0xffffffff),
                   borderRadius: BorderRadius.circular(25.0),
-                  border: Border.all(
-                      color: Colors.black87, width: 2.0), // Add this line
+                  border: Border.all(color: Colors.black87, width: 2.0),
                 ),
                 child: Row(
                   children: [
@@ -81,50 +135,46 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             SizedBox(height: 16),
-            // Carousel banner
-            CarouselSlider(
-              items: [
-                Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/img.png'),
-                      fit: BoxFit.cover,
+            // Dynamic Carousel Banner
+            Center(
+              child: banners.isNotEmpty
+                  ? CarouselSlider(
+                items: banners.map((banner) {
+                  return GestureDetector(
+                    onTap: () async {
+                      // Ensure ProductID is used as a String
+                      final productId = banner['ProductID'].toString();
+                      await fetchProductDetails(productId);
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: NetworkImage(banner['BannerURL']),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
-                  ),
+                  );
+                }).toList(),
+                options: CarouselOptions(
+                  height: 150,
+                  aspectRatio: 16 / 9,
+                  viewportFraction: 0.8,
+                  initialPage: 0,
+                  enableInfiniteScroll: true,
+                  reverse: false,
+                  autoPlay: true,
+                  autoPlayInterval: Duration(seconds: 5),
+                  pauseAutoPlayOnTouch: true,
+                  enlargeCenterPage: true,
+                  onPageChanged: (index, reason) {
+                    print('Page changed to $index');
+                  },
                 ),
-                Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/img_1.png'),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/img_2.png'),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              ],
-              options: CarouselOptions(
-                height: 150,
-                aspectRatio: 16 / 9,
-                viewportFraction: 0.8,
-                initialPage: 0,
-                enableInfiniteScroll: true,
-                reverse: false,
-                autoPlay: true,
-                autoPlayInterval: Duration(seconds: 5),
-                pauseAutoPlayOnTouch: true,
-                enlargeCenterPage: true,
-                onPageChanged: (index, reason) {
-                  print('Page changed to $index');
-                },
-              ),
+              )
+                  : CircularProgressIndicator(), // Replace with a more user-friendly loading indicator
             ),
+
             SizedBox(height: 16),
             // Popular Medicines
             Text(
@@ -133,7 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(height: 8),
             Container(
-              height: 250, // Height to accommodate the products
+              height: 250,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: popularMedicines.length,
@@ -156,9 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               ),
             ),
-
             SizedBox(height: 16),
-
             // Best Selling Products
             Text(
               'Best Selling Products',
@@ -166,11 +214,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(height: 8),
             Container(
-              //height: 250,
               child: GridView.builder(
                 shrinkWrap: true,
-                physics:
-                    NeverScrollableScrollPhysics(), // Prevents the GridView from scrolling
+                physics: NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 15,
@@ -203,6 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
 
 class ProductCard extends StatelessWidget {
   final String imagePath;
@@ -314,6 +361,7 @@ class ProductCard extends StatelessWidget {
                             style: TextStyle(fontSize: 14, color: Colors.grey),
                           ),
                           SizedBox(height: 8),
+                          // Inside your ProductCard widget
                           Obx(() {
                             final quantity = cartController.getProductDetails(medicineId)?['quantity'] ?? 0;
                             return quantity > 0
@@ -393,17 +441,6 @@ class ProductCard extends StatelessWidget {
                                 : ElevatedButton(
                               onPressed: () {
                                 if (userController.isLoggedIn.value) {
-                                  Get.snackbar(
-                                    'Item added',
-                                    '$name added to cart',
-                                    backgroundColor: Colors.black,
-                                    colorText: Colors.orangeAccent,
-                                    snackPosition: SnackPosition.BOTTOM,
-                                    margin: EdgeInsets.all(16.0),
-                                    borderRadius: 8.0, // Border radius
-                                    isDismissible: true, // Allow dismissing by tapping outside
-
-                                  );
                                   cartController.updateCartItem(
                                     medicineId,
                                     {
@@ -426,15 +463,136 @@ class ProductCard extends StatelessWidget {
                                     colorText: Colors.black,
                                     snackPosition: SnackPosition.BOTTOM,
                                     margin: EdgeInsets.all(16.0),
-                                    borderRadius: 8.0, // Border radius
-                                    isDismissible: true, // Allow dismissing by tapping outside
-
+                                    borderRadius: 8.0,
+                                    isDismissible: true,
                                   );
                                 }
                               },
                               child: Text('Add to Cart'),
                             );
-                          }),
+                          })
+
+                          // Obx(() {
+                          //   final quantity = cartController.getProductDetails(medicineId)?['quantity'] ?? 0;
+                          //   return quantity > 0
+                          //       ? Row(
+                          //     mainAxisAlignment: MainAxisAlignment.center,
+                          //     children: [
+                          //       IconButton(
+                          //         icon: Icon(Icons.remove_circle_outline),
+                          //         onPressed: () {
+                          //           cartController.updateCartItem(
+                          //             medicineId,
+                          //             {
+                          //               'imagePath': imagePath,
+                          //               'name': name,
+                          //               'mrp': mrp,
+                          //               'ptr': ptr,
+                          //               'companyName': companyName,
+                          //               'productDetails': productDetails,
+                          //               'salts': salts,
+                          //               'offer': offer,
+                          //             },
+                          //             quantity - 1,
+                          //           );
+                          //         },
+                          //       ),
+                          //       Container(
+                          //         width: 40,
+                          //         height: 30,
+                          //         child: TextField(
+                          //           keyboardType: TextInputType.number,
+                          //           textAlign: TextAlign.center,
+                          //           decoration: InputDecoration(
+                          //             border: OutlineInputBorder(),
+                          //             contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                          //           ),
+                          //           controller: TextEditingController(text: quantity.toString()),
+                          //           onSubmitted: (value) {
+                          //             final newQuantity = int.tryParse(value) ?? 0;
+                          //             cartController.updateCartItem(
+                          //               medicineId,
+                          //               {
+                          //                 'imagePath': imagePath,
+                          //                 'name': name,
+                          //                 'mrp': mrp,
+                          //                 'ptr': ptr,
+                          //                 'companyName': companyName,
+                          //                 'productDetails': productDetails,
+                          //                 'salts': salts,
+                          //                 'offer': offer,
+                          //               },
+                          //               newQuantity,
+                          //             );
+                          //           },
+                          //         ),
+                          //       ),
+                          //       IconButton(
+                          //         icon: Icon(Icons.add_circle_outline),
+                          //         onPressed: () {
+                          //           cartController.updateCartItem(
+                          //             medicineId,
+                          //             {
+                          //               'imagePath': imagePath,
+                          //               'name': name,
+                          //               'mrp': mrp,
+                          //               'ptr': ptr,
+                          //               'companyName': companyName,
+                          //               'productDetails': productDetails,
+                          //               'salts': salts,
+                          //               'offer': offer,
+                          //             },
+                          //             quantity + 1,
+                          //           );
+                          //         },
+                          //       ),
+                          //     ],
+                          //   )
+                          //       : ElevatedButton(
+                          //     onPressed: () {
+                          //       if (userController.isLoggedIn.value) {
+                          //         Get.snackbar(
+                          //           'Item added',
+                          //           '$name added to cart',
+                          //           backgroundColor: Colors.black,
+                          //           colorText: Colors.orangeAccent,
+                          //           snackPosition: SnackPosition.BOTTOM,
+                          //           margin: EdgeInsets.all(16.0),
+                          //           borderRadius: 8.0, // Border radius
+                          //           isDismissible: true, // Allow dismissing by tapping outside
+                          //
+                          //         );
+                          //         cartController.updateCartItem(
+                          //           medicineId,
+                          //           {
+                          //             'imagePath': imagePath,
+                          //             'name': name,
+                          //             'mrp': mrp,
+                          //             'ptr': ptr,
+                          //             'companyName': companyName,
+                          //             'productDetails': productDetails,
+                          //             'salts': salts,
+                          //             'offer': offer,
+                          //           },
+                          //           1,
+                          //         );
+                          //       } else {
+                          //         Get.snackbar(
+                          //           'Login Required',
+                          //           'Please log in to add items to the cart',
+                          //           backgroundColor: Colors.orangeAccent,
+                          //           colorText: Colors.black,
+                          //           snackPosition: SnackPosition.BOTTOM,
+                          //           margin: EdgeInsets.all(16.0),
+                          //           borderRadius: 8.0, // Border radius
+                          //           isDismissible: true, // Allow dismissing by tapping outside
+                          //
+                          //         );
+                          //       }
+                          //     },
+                          //     child: Text('Add to Cart'),
+                          //   );
+                          // }),
                         ],
                       ),
                     ),
@@ -448,6 +606,9 @@ class ProductCard extends StatelessWidget {
     );
   }
 }
+
+
+
 
 // class ProductCard extends StatelessWidget {
 //   final String imagePath;

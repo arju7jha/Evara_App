@@ -2,6 +2,7 @@ import 'package:evara/features/authentication/login.dart';
 import 'package:evara/screens/main_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'controller/UserController.dart';
 import 'controller/cart_component/CartController.dart';
@@ -9,10 +10,11 @@ import 'screens/splashscreen/splash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
+   SharedPreferences.getInstance();
   // Initialize GetX controller
+  Get.lazyPut(()=>UserController());
   Get.put(CartController());
-  Get.put(UserController());
+  //Get.put(UserController());
 
   runApp(MyApp());
 }
@@ -28,8 +30,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: const Color(0xffffffff),
         colorScheme: ColorScheme.fromSwatch().copyWith(
-          primary: const Color(0xff1b3156),
-          secondary: const Color(0xff1b3156), //secondary: const Color(0xffE7333E),
+          primary: const Color(0xff009688),//Color(0xff1b3156),
+          secondary: const Color(0xff009688)//Color(0xff1b3156), //secondary: const Color(0xffE7333E),
         ),
       ),
       home: SplashScreenPage(),//MainPage(),//MainPage(),//SplashScreenPage(),

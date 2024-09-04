@@ -1,4 +1,3 @@
-
 import 'package:evara/features/authentication/login.dart';
 import 'package:evara/screens/main_page.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +34,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final String? userDataJson = prefs.getString(userKey);
       if (userDataJson != null) {
         final Map<String, dynamic>? responseData = jsonDecode(userDataJson);
-        if (responseData != null) {
+        if (responseData != null && responseData.containsKey('userData')) {
           final userDataInfo = responseData['userData'];
           setState(() {
             isLoggedIn = true;
@@ -43,9 +42,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
             email = userDataInfo['email'] ?? 'No Email';
             phoneNumber = userDataInfo['phone_number'] ?? 'No Phone Number';
           });
+        } else {
+          // Handle the case where 'userData' is missing
+          _clearUserData();
         }
+      } else {
+        // Handle the case where userDataJson is null
+        _clearUserData();
       }
+    } else {
+      // Handle the case where userKey is null
+      _clearUserData();
     }
+  }
+
+  void _clearUserData() {
+    setState(() {
+      isLoggedIn = false;
+      userName = '';
+      email = '';
+      phoneNumber = '';
+    });
   }
 
   Future<void> _logout() async {
@@ -56,7 +73,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (userKey != null) {
       prefs.remove(userKey);
     }
-    // Navigate to the LoginPage
+    // Clear user data after logout
+    _clearUserData();
+
+    // Navigate to the MainPage
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => MainPage()),
@@ -175,14 +195,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-
-
-
+//
 // import 'package:evara/features/authentication/login.dart';
 // import 'package:evara/screens/main_page.dart';
 // import 'package:flutter/material.dart';
-// import 'package:shared_preferences/shared_preferences.dart'; // Import for SharedPreferences
-// import 'dart:convert'; // Import for JSON decoding
+// import 'package:get/get.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+// import 'dart:convert';
+// import '../../controller/UserController.dart';
 // import '../../features/authentication/custom_widget.dart';
 //
 // class ProfileScreen extends StatefulWidget {
@@ -191,6 +211,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 // }
 //
 // class _ProfileScreenState extends State<ProfileScreen> {
+//   final UserController userController = Get.find<UserController>(); // Access UserController
 //   bool isLoggedIn = false;
 //   String userName = '';
 //   String email = '';
@@ -202,32 +223,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 //     _loadUserData();
 //   }
 //
-//   // Future<void> _loadUserData() async {
-//   //   final SharedPreferences prefs = await SharedPreferences.getInstance();
-//   //   // Fetch the phone number to get the user data, assuming it's stored
-//   //   final allKeys = prefs.getKeys(); // Get all keys to find the stored user
-//   //   String? userKey = allKeys.isNotEmpty ? allKeys.first : null;
-//   //
-//   //   if (userKey != null) {
-//   //     final String? userDataJson = prefs.getString(userKey);
-//   //     if (userDataJson != null) {
-//   //       final Map<String, dynamic> userData = jsonDecode(userDataJson);
-//   //       print(userData); // Print the user data in the console
-//   //       setState(() {
-//   //         isLoggedIn = true;
-//   //         userName = userData['userData']['data']['email'] ?? 'User'; // Use the email as the username for display
-//   //         email = userData['userData']['data']['email'] ?? 'No Email';
-//   //         phoneNumber = userData['userData']['data']['phone_number'] ?? 'No Phone Number';
-//   //       });
-//   //     }
-//   //   }
-//   // }
-//
-//
 //   Future<void> _loadUserData() async {
 //     final SharedPreferences prefs = await SharedPreferences.getInstance();
-//     // Fetch the phone number to get the user data, assuming it's stored
-//     final allKeys = prefs.getKeys(); // Get all keys to find the stored user
+//     final allKeys = prefs.getKeys();
 //     String? userKey = allKeys.isNotEmpty ? allKeys.first : null;
 //
 //     if (userKey != null) {
@@ -235,13 +233,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 //       if (userDataJson != null) {
 //         final Map<String, dynamic>? responseData = jsonDecode(userDataJson);
 //         if (responseData != null) {
-//           print(responseData); // Print the user data in the console
-//
-//           // Access the 'userData' directly from the root level
 //           final userDataInfo = responseData['userData'];
 //           setState(() {
 //             isLoggedIn = true;
-//             userName = userDataInfo['email'] ?? 'User'; // Use the email as the username for display
+//             userName = userDataInfo['email'] ?? 'User';
 //             email = userDataInfo['email'] ?? 'No Email';
 //             phoneNumber = userDataInfo['phone_number'] ?? 'No Phone Number';
 //           });
@@ -252,7 +247,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 //
 //   Future<void> _logout() async {
 //     final SharedPreferences prefs = await SharedPreferences.getInstance();
-//     final allKeys = prefs.getKeys(); // Get all keys to find the stored user
+//     final allKeys = prefs.getKeys();
 //     String? userKey = allKeys.isNotEmpty ? allKeys.first : null;
 //
 //     if (userKey != null) {
@@ -279,13 +274,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 //         onPressed: _logout,
 //         tooltip: 'Logout',
 //         child: Icon(Icons.logout),
-//        // backgroundColor: Colors.red,
 //       )
 //           : null,
 //     );
 //   }
 //
-//   // Widget to build the UI when the user is logged in
 //   Widget _buildLoggedInView() {
 //     return Card(
 //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -345,7 +338,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 //     );
 //   }
 //
-//   // Widget to build the UI when the user is not logged in
 //   Widget _buildLoggedOutView(BuildContext context) {
 //     return Column(
 //       mainAxisSize: MainAxisSize.min,
@@ -379,4 +371,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 //     );
 //   }
 // }
-
+//
+//
+//
+//
+//
