@@ -3,8 +3,13 @@ import 'dart:convert'; // For encoding JSON
 import 'package:evara/features/authentication/registration.dart';
 import 'package:evara/screens/main_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as http; // For making HTTP requests
 import 'package:shared_preferences/shared_preferences.dart'; // For using SharedPreferences
+import '../../controller/UserController.dart';
+import '../../main.dart';
 import 'custom_widget.dart';
 
 class LoginPage extends StatefulWidget {
@@ -43,24 +48,48 @@ class _LoginPageState extends State<LoginPage> {
 
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
-      print(responseData); // Print the response in the console
+      print(responseData);
+      // Print the response in the console
 
+      // if (responseData['message'] == 'Login successful') {
+      //   final SharedPreferences prefs = await SharedPreferences.getInstance();
+      //   // Save the entire response data using phone number as key
+      //   prefs.setString(phoneNumber, jsonEncode(responseData));
+      //
+      //   // Navigate to the MainPage
+      //   Navigator.pushReplacement(
+      //     context,
+      //     MaterialPageRoute(builder: (context) => MainPage()),
+      //   );
+      // }
       if (responseData['message'] == 'Login successful') {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         // Save the entire response data using phone number as key
         prefs.setString(phoneNumber, jsonEncode(responseData));
 
-        // Navigate to the MainPage
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => MainPage()),
-        );
-      } else {
+        // Update the UserController with the logged-in user's data
+        final UserController userController = Get.find<UserController>();
+        userController.isLoggedIn.value = true;
+        userController.userName.value = responseData['userData']['email'];
+        userController.email.value = responseData['userData']['email'];
+        userController.phoneNumber.value = responseData['userData']['phone_number'];
+        userController.token.value = responseData['token'];
+        userController.userId.value = responseData['userData']['user_id'].toString();
+        userController.appUrl.value = responseData['AppURL'];
+
+        // Restart the app using Phoenix
+        Get.offAll(() => MainPage());
+        Phoenix.rebirth(context);
+      }
+
+    else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(responseData['message'] ?? 'Login failed')),
         );
       }
-    } else {
+    }
+
+    else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Server error. Please try again later.')),
       );
@@ -138,7 +167,8 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(height: 20),
                 CustomButton(
                   text: 'Login',
-                  onPressed: _login, // Use the _login function on button press
+                  onPressed: _login,
+                  // Use the _login function on button press
                 ),
                 SizedBox(height: 20),
                 TextButton(
@@ -151,7 +181,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Text(
                     "Don't have an account? Register Here",
                     style: TextStyle(
-                      color: Color(0xff1b3156),
+                      //color: Color(0xff1b3156),
                     ),
                   ),
                 ),
@@ -163,6 +193,8 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
+
 
 // // import 'dart:convert'; // For encoding JSON
 // // import 'package:evara/features/authentication/registration.dart';

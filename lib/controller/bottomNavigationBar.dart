@@ -16,14 +16,15 @@ class CustomBottomNavigationBar extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       currentIndex: currentIndex,
       onTap: onTap,
-      selectedItemColor: Color(0xff033464),
+      selectedItemColor: Color(0xff25a295),
       unselectedItemColor: Colors.grey,
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-        BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Explore'),
+        //BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Explore'),
         BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Order'),
         BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
       ],
+
     );
   }
 }

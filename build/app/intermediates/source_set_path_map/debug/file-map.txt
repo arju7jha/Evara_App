@@ -10,3 +10,4 @@ com.example.evara.app-rs-8 D:\New Flutter Apps\evara\build\app\generated\res\rs\
 com.example.evara.app-mergeDebugResources-9 D:\New Flutter Apps\evara\build\app\intermediates\incremental\debug\mergeDebugResources\merged.dir
 com.example.evara.app-mergeDebugResources-10 D:\New Flutter Apps\evara\build\app\intermediates\incremental\debug\mergeDebugResources\stripped.dir
 com.example.evara.app-merged_res-11 D:\New Flutter Apps\evara\build\app\intermediates\merged_res\debug
+com.example.evara.app-packaged_res-12 D:\New Flutter Apps\evara\build\shared_preferences_android\intermediates\packaged_res\debug

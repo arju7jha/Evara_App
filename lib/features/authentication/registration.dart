@@ -297,7 +297,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     child: Text(
                       "Already have an account? Login",
                       style: TextStyle(
-                        color: Colors.deepPurple,
+                        color: Colors.black,
                       ),
                     ),
                   ),

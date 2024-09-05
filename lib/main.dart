@@ -1,6 +1,7 @@
 import 'package:evara/features/authentication/login.dart';
 import 'package:evara/screens/main_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,7 +17,9 @@ void main() {
   Get.put(CartController());
   //Get.put(UserController());
 
-  runApp(MyApp());
+  runApp(Phoenix(
+    child: MyApp(),
+  ));//runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

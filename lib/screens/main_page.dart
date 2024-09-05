@@ -13,24 +13,14 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
-  // bool _isSearching = false;
-  // final TextEditingController _searchController = TextEditingController();
 
   final List<Widget> _pages = [
     HomeScreen(),
-    ExplorePage(),
+   // ExplorePage(),
     OrderScreen(),
     ProfileScreen(),
   ];
 
-  // void _toggleSearch() {
-  //   setState(() {
-  //     _isSearching = !_isSearching;
-  //     if (!_isSearching) {
-  //       _searchController.clear();
-  //     }
-  //   });
-  // }
 
   void _onBottomNavTapped(int index) {
     setState(() {
@@ -42,9 +32,6 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        // isSearching: _isSearching,
-        // toggleSearch: _toggleSearch,
-        // searchController: _searchController,
       ),
       body: _pages[_currentIndex],
       bottomNavigationBar: CustomBottomNavigationBar(
