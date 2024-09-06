@@ -2,12 +2,12 @@ com.example.evara.app-jetified-window-1.0.0-beta04-0 C:\Users\arjuk\.gradle\cach
 com.example.evara.app-jetified-annotation-experimental-1.1.0-1 C:\Users\arjuk\.gradle\caches\transforms-3\6c0c163cc77ae6c91f9f7dfcd179c29c\transformed\jetified-annotation-experimental-1.1.0\res
 com.example.evara.app-core-1.6.0-2 C:\Users\arjuk\.gradle\caches\transforms-3\7e9df2ac2213a6bd3cef0f2f27870d79\transformed\core-1.6.0\res
 com.example.evara.app-jetified-window-java-1.0.0-beta04-3 C:\Users\arjuk\.gradle\caches\transforms-3\ae81e06d24c799147c26814497a2a305\transformed\jetified-window-java-1.0.0-beta04\res
-com.example.evara.app-debug-4 D:\New Flutter Apps\evara\android\app\src\debug\res
-com.example.evara.app-main-5 D:\New Flutter Apps\evara\android\app\src\main\res
-com.example.evara.app-pngs-6 D:\New Flutter Apps\evara\build\app\generated\res\pngs\debug
-com.example.evara.app-resValues-7 D:\New Flutter Apps\evara\build\app\generated\res\resValues\debug
-com.example.evara.app-rs-8 D:\New Flutter Apps\evara\build\app\generated\res\rs\debug
-com.example.evara.app-mergeDebugResources-9 D:\New Flutter Apps\evara\build\app\intermediates\incremental\debug\mergeDebugResources\merged.dir
-com.example.evara.app-mergeDebugResources-10 D:\New Flutter Apps\evara\build\app\intermediates\incremental\debug\mergeDebugResources\stripped.dir
-com.example.evara.app-merged_res-11 D:\New Flutter Apps\evara\build\app\intermediates\merged_res\debug
-com.example.evara.app-packaged_res-12 D:\New Flutter Apps\evara\build\shared_preferences_android\intermediates\packaged_res\debug
+com.example.evara.app-debug-4 C:\Users\arjuk\StudioProjects\Evara_App\android\app\src\debug\res
+com.example.evara.app-main-5 C:\Users\arjuk\StudioProjects\Evara_App\android\app\src\main\res
+com.example.evara.app-pngs-6 C:\Users\arjuk\StudioProjects\Evara_App\build\app\generated\res\pngs\debug
+com.example.evara.app-resValues-7 C:\Users\arjuk\StudioProjects\Evara_App\build\app\generated\res\resValues\debug
+com.example.evara.app-rs-8 C:\Users\arjuk\StudioProjects\Evara_App\build\app\generated\res\rs\debug
+com.example.evara.app-mergeDebugResources-9 C:\Users\arjuk\StudioProjects\Evara_App\build\app\intermediates\incremental\debug\mergeDebugResources\merged.dir
+com.example.evara.app-mergeDebugResources-10 C:\Users\arjuk\StudioProjects\Evara_App\build\app\intermediates\incremental\debug\mergeDebugResources\stripped.dir
+com.example.evara.app-merged_res-11 C:\Users\arjuk\StudioProjects\Evara_App\build\app\intermediates\merged_res\debug
+com.example.evara.app-packaged_res-12 C:\Users\arjuk\StudioProjects\Evara_App\build\shared_preferences_android\intermediates\packaged_res\debug

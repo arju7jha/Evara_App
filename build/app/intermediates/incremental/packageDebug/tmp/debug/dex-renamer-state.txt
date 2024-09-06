@@ -1,4 +1,4 @@
-#Wed Sep 04 18:44:24 IST 2024
-base.0=D\:\\New Flutter Apps\\evara\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
+#Fri Sep 06 13:49:20 IST 2024
+base.0=C\:\\Users\\arjuk\\StudioProjects\\Evara_App\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
 path.0=classes.dex
 renamed.0=classes.dex

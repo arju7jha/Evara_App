@@ -4,7 +4,7 @@
             "outputFile": "com.example.evara.app-mergeDebugResources-9:/values-night-v8/values-night-v8.xml",
             "map": [
                 {
-                    "source": "D:\\New Flutter Apps\\evara\\android\\app\\src\\main\\res\\values-night\\styles.xml",
+                    "source": "C:\\Users\\arjuk\\StudioProjects\\Evara_App\\android\\app\\src\\main\\res\\values-night\\styles.xml",
                     "from": {
                         "startLines": "3,14",
                         "startColumns": "4,4",
