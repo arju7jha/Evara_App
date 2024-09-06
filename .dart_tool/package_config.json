@@ -80,6 +80,12 @@
       "languageVersion": "2.19"
     },
     {
+      "name": "flutter_spinkit",
+      "rootUri": "file:///C:/Users/arjuk/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_spinkit-5.2.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "flutter_test",
       "rootUri": "file:///C:/src/flutter/packages/flutter_test",
       "packageUri": "lib/",
@@ -296,7 +302,7 @@
       "languageVersion": "3.1"
     }
   ],
-  "generated": "2024-09-05T06:14:22.508096Z",
+  "generated": "2024-09-06T13:05:50.924471Z",
   "generator": "pub",
   "generatorVersion": "3.1.5"
 }

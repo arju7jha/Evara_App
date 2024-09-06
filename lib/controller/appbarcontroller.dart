@@ -8,24 +8,25 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }) : super(key: key);
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       elevation: 0,
       leading: IconButton(
-        icon: Icon(Icons.menu, size: 30,),
+        icon: const Icon(Icons.menu, size: 30,color: Colors.orange,),
         onPressed: () {
           // Handle menu button press
         },
       ),
-      title: Text('Evara'), // Always display "Evara" as the title
+      title: const Text('Evara',style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold, color: Color(
+          0xffffffff)),), // Always display "Evara" as the title
       // In the CustomAppBar widget's actions array
       actions: [
         IconButton(
-          icon: Icon(Icons.add_shopping_cart_outlined, size: 30),
-          padding: EdgeInsets.only(right: 20),
+          icon: const Icon(Icons.add_shopping_cart_outlined, size: 30, color: Colors.orange,),
+          padding: const EdgeInsets.only(right: 20),
           onPressed: () {
             Navigator.push(
               context,

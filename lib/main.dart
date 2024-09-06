@@ -31,8 +31,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: const Color(0xffffffff),
         colorScheme: ColorScheme.fromSwatch().copyWith(
-          primary: const Color(0xff1b3156),
-          secondary: const Color(0xff1b3156), //secondary: const Color(0xffE7333E),
+            primary: const Color(0xff009688),
+            secondary: const Color(0xff009688),
+          // primary: const Color(0xff1b3156),
+          // secondary: const Color(0xff1b3156), //secondary: const Color(0xffE7333E),
         ),
       ),
       home: SplashScreenPage(),//MainPage(),//MainPage(),//SplashScreenPage(),

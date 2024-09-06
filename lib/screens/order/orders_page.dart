@@ -47,7 +47,7 @@ class OrderScreen extends StatelessWidget {
                 order['status'],
                 style: TextStyle(color: Colors.white),
               ),
-              backgroundColor: order['status'] == 'Rejected'
+              backgroundColor: order['status'] == 'rejected'
                   ? Colors.red
                   : order['status'] == 'Accepted'
                   ? Colors.green
@@ -59,10 +59,10 @@ class OrderScreen extends StatelessWidget {
           padding: const EdgeInsets.only(top: 8.0),
           child: Row(
             children: [
-              Icon(Icons.attach_money, color: Colors.green, size: 18),
+              Icon(Icons.currency_rupee, color: Colors.green, size: 18),
               SizedBox(width: 5),
               Text(
-                '\$${order['total_amount']}',
+                '${order['total_amount']}',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               ),
               Spacer(),
