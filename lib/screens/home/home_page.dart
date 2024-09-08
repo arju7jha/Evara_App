@@ -225,10 +225,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            // Text(
-            //   'Popular Medicines',
-            //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            // ),
             SizedBox(height: 8),
             Container(
               height: 260,
@@ -258,23 +254,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             SizedBox(height: 8),
-            // Align(
-            //   alignment: Alignment.centerRight,
-            //   child: TextButton(
-            //     onPressed: () {
-            //       Navigator.push(
-            //         context,
-            //         MaterialPageRoute(
-            //           builder: (context) => AllProductsPage(
-            //             title: 'Popular Medicines',
-            //             products: popularMedicines,
-            //           ),
-            //         ),
-            //       );
-            //     },
-            //     child: Text('See All'),
-            //   ),
-            // ),
             SizedBox(height: 16),
             Row(
               children: [
@@ -304,10 +283,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            // Text(
-            //   'Best Selling Products',
-            //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            // ),
             SizedBox(height: 8),
             Container(
               //height: 260,
@@ -342,23 +317,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             SizedBox(height: 8),
-            // Align(
-            //   alignment: Alignment.centerRight,
-            //   child: TextButton(
-            //     onPressed: () {
-            //       Navigator.push(
-            //         context,
-            //         MaterialPageRoute(
-            //           builder: (context) => AllProductsPage(
-            //             title: 'Best Selling Products',
-            //             products: bestSellingProducts,
-            //           ),
-            //         ),
-            //       );
-            //     },
-            //     child: Text('See All'),
-            //   ),
-            // ),
           ],
         ),
       ),
