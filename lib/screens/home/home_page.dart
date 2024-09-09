@@ -628,6 +628,10 @@ class ProductCard extends StatelessWidget {
   }
 }
 
+
+
+
+
 // import 'package:flutter/material.dart';
 // import 'package:carousel_slider/carousel_slider.dart';
 // import 'dart:convert'; // To handle JSON data

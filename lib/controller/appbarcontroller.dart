@@ -14,18 +14,28 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       elevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.menu, size: 30,color: Colors.orange,),
-        onPressed: () {
-          // Handle menu button press
-        },
+      leading: Padding(
+        padding: const EdgeInsets.all(8.0), // Adjust the padding as needed
+        child: Image.asset(
+          'assets/logos/evara_logo2.png', // Replace with the correct path to your logo
+          fit: BoxFit.contain,
+        ),
       ),
-      title: const Text('Evara',style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold, color: Color(
-          0xffffffff)),), // Always display "Evara" as the title
-      // In the CustomAppBar widget's actions array
+      title: const Text(
+        'Evara',
+        style: TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.bold,
+          color: Color(0xffffffff),
+        ),
+      ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.add_shopping_cart_outlined, size: 30, color: Colors.orange,),
+          icon: const Icon(
+            Icons.add_shopping_cart_outlined,
+            size: 30,
+            color: Colors.orange,
+          ),
           padding: const EdgeInsets.only(right: 20),
           onPressed: () {
             Navigator.push(
@@ -36,6 +46,31 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ],
     );
+
+    // return AppBar(
+    //   elevation: 0,
+    //   leading: IconButton(
+    //     icon: const Icon(Icons.menu, size: 30,color: Colors.orange,),
+    //     onPressed: () {
+    //       // Handle menu button press
+    //     },
+    //   ),
+    //   title: const Text('Evara',style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold, color: Color(
+    //       0xffffffff)),), // Always display "Evara" as the title
+    //   // In the CustomAppBar widget's actions array
+    //   actions: [
+    //     IconButton(
+    //       icon: const Icon(Icons.add_shopping_cart_outlined, size: 30, color: Colors.orange,),
+    //       padding: const EdgeInsets.only(right: 20),
+    //       onPressed: () {
+    //         Navigator.push(
+    //           context,
+    //           MaterialPageRoute(builder: (context) => ShoppingCartPage()),
+    //         );
+    //       },
+    //     ),
+    //   ],
+    // );
   }
 }
 
