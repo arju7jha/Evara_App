@@ -15,7 +15,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       elevation: 0,
       leading: Padding(
-        padding: const EdgeInsets.all(8.0), // Adjust the padding as needed
+        padding: const EdgeInsets.only(left: 8.0), // Adjust the padding as needed
         child: Image.asset(
           'assets/logos/evara_logo2.png', // Replace with the correct path to your logo
           fit: BoxFit.contain,

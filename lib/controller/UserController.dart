@@ -10,6 +10,18 @@ class UserController extends GetxController {
   var token = ''.obs;
   var appUrl = ''.obs;
   var userId = ''.obs;
+  var mailAddress = ''.obs;
+  var deliveryAddress = ''.obs;
+  var dnNo = ''.obs;
+  var dlPic = ''.obs;
+  var dlExpireDate = ''.obs;
+  var aadharNo = ''.obs;
+  var aadharPic = ''.obs;
+  var gstNo = ''.obs;
+  var gstDoc = ''.obs;
+  var tradeLic = ''.obs;
+  var panNo = ''.obs;
+
 
   @override
   void onInit() {
@@ -31,11 +43,23 @@ class UserController extends GetxController {
           final userDataInfo = responseData['userData'];
           isLoggedIn.value = true;
           userId.value = userDataInfo['user_id'].toString() ?? 'UserId not found';
-          userName.value = userDataInfo['email'] ?? 'User';
+          userName.value = userDataInfo['username'] ?? 'User';
           email.value = userDataInfo['email'] ?? 'No Email';
           phoneNumber.value = userDataInfo['phone_number'] ?? 'No Phone Number';
           token.value = responseData['token'] ?? 'Token not found';
           appUrl.value = responseData['AppURL'] ?? 'AppURL not found';
+          mailAddress.value = userDataInfo['mailing_address'] ?? 'Mailing address not found';
+          deliveryAddress.value = userDataInfo['delivery_address'] ?? 'Delivery address not found';
+          dnNo.value = userDataInfo['dl_no'] ?? 'DL num not found';
+          dlPic.value = userDataInfo['dl_pic'] ?? 'DL pic not found';
+          dlExpireDate.value = userDataInfo['dl_expire_date'] ?? 'DL expire not found';
+          aadharNo.value = userDataInfo['aadhar_no'] ?? 'Aadhar number not found';
+          aadharPic.value = userDataInfo['aadhar_pic'] ?? 'Aadhar pic not found';
+          gstNo.value = userDataInfo['gst_no'] ?? 'GST number not found';
+          gstDoc.value = userDataInfo['gst_doc'] ?? 'GST document not found';
+          tradeLic.value = userDataInfo['trade_lic'] ?? 'Trade License not found';
+          panNo.value = userDataInfo['pan_no'] ?? 'PAN number not found';
+
         }
       }
     }

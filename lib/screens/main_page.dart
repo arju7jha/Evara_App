@@ -1,3 +1,4 @@
+import 'package:evara/screens/support/support_page.dart';
 import 'package:flutter/material.dart';
 import '../controller/appbarcontroller.dart';
 import '../controller/bottomNavigationBar.dart';
@@ -16,7 +17,7 @@ class _MainPageState extends State<MainPage> {
 
   final List<Widget> _pages = [
     HomeScreen(),
-   // ExplorePage(),
+    SupportPage(),
     OrderScreen(),
     ProfileScreen(),
   ];

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:evara/features/authentication/registration.dart';
 import 'package:evara/screens/main_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -54,12 +55,24 @@ class _LoginPageState extends State<LoginPage> {
         // Update the UserController with the logged-in user's data
         final UserController userController = Get.find<UserController>();
         userController.isLoggedIn.value = true;
-        userController.userName.value = responseData['userData']['email'];
+        userController.userName.value = responseData['userData']['username'];
         userController.email.value = responseData['userData']['email'];
         userController.phoneNumber.value = responseData['userData']['phone_number'];
         userController.token.value = responseData['token'];
         userController.userId.value = responseData['userData']['user_id'].toString();
         userController.appUrl.value = responseData['AppURL'];
+        userController.mailAddress.value = responseData['userData']['mailing_address'].toString();
+        userController.deliveryAddress.value = responseData['userData']['delivery_address'].toString();
+        userController.dnNo.value = responseData['userData']['dl_no'].toString();
+        userController.dlPic.value = responseData['userData']['dl_pic'].toString();
+        userController.dlExpireDate.value = responseData['userData']['dl_expire_date'].toString();
+        userController.aadharNo.value = responseData['userData']['aadhar_no'].toString();
+        userController.aadharPic.value = responseData['userData']['aadhar_pic'].toString();
+        userController.gstNo.value = responseData['userData']['gst_no'].toString();
+        userController.gstDoc.value = responseData['userData']['gst_doc'].toString();
+        userController.tradeLic.value = responseData['userData']['trade_lic'].toString();
+        userController.panNo.value = responseData['userData']['pan_no'].toString();
+
         // Restart the app using Phoenix
         Get.offAll(() => MainPage());
         Phoenix.rebirth(context);
@@ -132,6 +145,11 @@ class _LoginPageState extends State<LoginPage> {
                 TextField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10), // Restrict to 10 characters
+                  ],
+                  // maxLength: 10,
                   decoration: InputDecoration(
                     hintText: 'Phone Number',
                     prefixIcon: Icon(Icons.phone),
