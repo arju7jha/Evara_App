@@ -1,10 +1,10 @@
-import 'dart:math';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'dart:io';
 import 'dart:convert';
-import 'package:intl/intl.dart'; // For date formatting
-import 'custom_widget.dart';
-import 'login.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({Key? key}) : super(key: key);
@@ -22,21 +22,24 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
-  final TextEditingController mailingAddressController =
-  TextEditingController();
-  final TextEditingController deliveryAddressController =
-  TextEditingController();
+  final TextEditingController mailingAddressController = TextEditingController();
+  final TextEditingController deliveryAddressController = TextEditingController();
 
   // Controllers for business information
   final TextEditingController dnNoController = TextEditingController();
-  final TextEditingController dlPicController = TextEditingController();
+  final TextEditingController dlPicNameController = TextEditingController();
   final TextEditingController dlExpireDateController = TextEditingController();
   final TextEditingController aadharNoController = TextEditingController();
-  final TextEditingController aadharPicController = TextEditingController();
+  final TextEditingController aadharPicNameController = TextEditingController();
   final TextEditingController gstNoController = TextEditingController();
-  final TextEditingController gstDocController = TextEditingController();
+  final TextEditingController gstDocNameController = TextEditingController();
   final TextEditingController tradeLicController = TextEditingController();
   final TextEditingController panNoController = TextEditingController();
+
+  // Base64 encoded images
+  String? dlPicBase64;
+  String? aadharPicBase64;
+  String? gstDocBase64;
 
   // Date format
   final DateFormat _dateFormat = DateFormat('yyyy-MM-dd');
@@ -52,23 +55,19 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "phone_number": phoneController.text,
         "mailing_address": mailingAddressController.text,
         "delivery_address": deliveryAddressController.text,
-        "category":
-        selectedCategory, // Include category in the registration data
+        "category": selectedCategory,
         "dn_no": selectedCategory == 'Pharma' ? dnNoController.text : '',
-        "dl_pic": selectedCategory == 'Pharma' ? dlPicController.text : '',
+        "dl_pic": selectedCategory == 'Pharma' ? dlPicBase64 : '',
         "dl_expire_date": selectedCategory == 'Pharma'
             ? _dateFormat.format(DateTime.parse(dlExpireDateController.text))
             : null,
         "aadhar_no": aadharNoController.text,
-        "aadhar_pic": aadharPicController.text,
+        "aadhar_pic": aadharPicBase64,
         "gst_no": gstNoController.text,
-        "gst_doc": gstDocController.text,
+        "gst_doc": gstDocBase64,
         "trade_lic": tradeLicController.text,
         "pan_no": panNoController.text,
       };
-
-      print(
-          "Data to be sent for registration: $registrationData"); // Printing data to the console
 
       try {
         final response = await http.post(
@@ -79,31 +78,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
           body: jsonEncode(registrationData),
         );
 
-        print(
-            'API Response: ${response.body}'); // Print the API response in the console
-
         if (response.statusCode == 201) {
           final responseData = jsonDecode(response.body);
 
           if (responseData['message'] == 'Dealer registered successfully.') {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: Text('Registration Successful'),
-                  content: Text(
-                      'You have successfully registered. You will be notified by mail after verification.'),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: Text('OK'),
-                    ),
-                  ],
-                );
-              },
-            );
+            _showSuccessDialog();
           } else {
             _showErrorDialog(responseData['message'] ??
                 'Registration failed. Please try again.');
@@ -112,10 +91,29 @@ class _RegistrationPageState extends State<RegistrationPage> {
           _showErrorDialog(' ${response.body}');
         }
       } catch (e) {
-        _showErrorDialog(
-            'Failed to register. Please check your internet connection and try again.');
+        _showErrorDialog('Failed to register. Please check your internet connection and try again.');
       }
     }
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Registration Successful'),
+          content: Text('You have successfully registered. You will be notified by mail after verification.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showErrorDialog(String message) {
@@ -142,13 +140,63 @@ class _RegistrationPageState extends State<RegistrationPage> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime.now(),//DateTime(2000),
+      firstDate: DateTime.now(),
       lastDate: DateTime(2101),
     );
 
     if (picked != null) {
       controller.text = _dateFormat.format(picked);
     }
+  }
+
+  Future<void> _pickImage({
+    required TextEditingController nameController,
+    required Function(String) onBase64Encoded,
+  }) async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(
+      source: await _showImageSourceDialog(),
+    );
+
+    if (image != null) {
+      File imageFile = File(image.path);
+
+      // Compress image
+      final result = await FlutterImageCompress.compressWithFile(
+        imageFile.path,
+        minWidth: 800,
+        minHeight: 600,
+        quality: 85,
+      );
+
+      if (result != null) {
+        String base64Image = base64Encode(result);
+
+        setState(() {
+          nameController.text = image.name; // Only show image name
+          onBase64Encoded(base64Image); // Store base64 for sending to server
+        });
+      }
+    }
+  }
+
+  Future<ImageSource> _showImageSourceDialog() async {
+    return await showDialog<ImageSource>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Choose Image Source'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, ImageSource.camera),
+            child: Text('Camera'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, ImageSource.gallery),
+            child: Text('Gallery'),
+          ),
+        ],
+      ),
+    ) ?? ImageSource.gallery;
   }
 
   @override
@@ -164,34 +212,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo at the top of the form
                   Image.asset(
-                    'assets/logos/evara_logo2.png', // Replace with your logo asset path
+                    'assets/logos/evara_logo2.png',
                     height: 230,
                   ),
                   AnimatedSwitcher(
                     duration: Duration(milliseconds: 500),
-                    transitionBuilder: (child, animation) {
-                      final rotate =
-                      Tween(begin: pi / 2, end: 0.0).animate(animation);
-                      return AnimatedBuilder(
-                        animation: rotate,
-                        child: child,
-                        builder: (context, child) {
-                          final isUnder =
-                          (ValueKey(showBusinessInfo) != child?.key);
-                          var tilt =
-                              (isUnder ? 0.003 : 0.0) * pi * animation.value;
-                          tilt *= isUnder ? -1.0 : 1.0;
-                          return Transform(
-                            transform: Matrix4.rotationY(rotate.value)
-                              ..setEntry(3, 0, tilt),
-                            alignment: Alignment.center,
-                            child: child,
-                          );
-                        },
-                      );
-                    },
                     child: showBusinessInfo
                         ? _buildBusinessInfoCard()
                         : _buildPersonalInfoCard(),
@@ -201,7 +227,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       if (showBusinessInfo)
-                        CustomButton(
+                        CustomButtons(
                           text: 'Previous',
                           onPressed: () {
                             setState(() {
@@ -209,7 +235,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             });
                           },
                         ),
-                      CustomButton(
+                      CustomButtons(
                         text: showBusinessInfo ? 'Submit' : 'Next',
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
@@ -251,83 +277,87 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   Widget _buildPersonalInfoCard() {
     return Card(
-      key: ValueKey(false),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          children: [
-            Text(
-              'Personal Information',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Divider(),
-            _buildTextField(usernameController, 'Username', Icons.person),
-            _buildTextField(emailController, 'Email', Icons.email,
-                inputType: TextInputType.emailAddress),
-            _buildTextField(phoneController, 'Phone Number', Icons.phone,
-                inputType: TextInputType.phone),
-            _buildTextField(
-                mailingAddressController, 'Mailing Address', Icons.home),
-            _buildTextField(deliveryAddressController, 'Delivery Address',
-                Icons.location_on),
-            SizedBox(height: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Select Category:',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: RadioListTile<String>(
-                        title: Text('Pharma'),
-                        value: 'Pharma',
-                        groupValue: selectedCategory,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedCategory = value!;
-                          });
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      child: RadioListTile<String>(
-                        title: Text('General'),
-                        value: 'General',
-                        groupValue: selectedCategory,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedCategory = value!;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
+        child: Padding(
+        padding: const EdgeInsets.all(12.0),
+    child: Column(
+    children: [
+    Text(
+      'Personal Information',
+      style: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
       ),
+    ),
+      SizedBox(height: 10),
+      TextFormField(
+        controller: usernameController,
+        decoration: InputDecoration(labelText: 'Username'),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter your username';
+          }
+          return null;
+        },
+      ),
+      TextFormField(
+        controller: emailController,
+        decoration: InputDecoration(labelText: 'Email'),
+        keyboardType: TextInputType.emailAddress,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter your email';
+          } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+            return 'Please enter a valid email address';
+          }
+          return null;
+        },
+      ),
+      TextFormField(
+        controller: phoneController,
+        decoration: InputDecoration(labelText: 'Phone Number'),
+        keyboardType: TextInputType.phone,
+        maxLength: 10,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter your phone number';
+          } else if (value.length != 10) {
+            return 'Phone number must be 10 digits';
+          }
+          return null;
+        },
+      ),
+      TextFormField(
+        controller: mailingAddressController,
+        decoration: InputDecoration(labelText: 'Mailing Address'),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter your mailing address';
+          }
+          return null;
+        },
+      ),
+      TextFormField(
+        controller: deliveryAddressController,
+        decoration: InputDecoration(labelText: 'Delivery Address'),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter your delivery address';
+          }
+          return null;
+        },
+      ),
+    ],
+    ),
+        ),
     );
   }
 
   Widget _buildBusinessInfoCard() {
     return Card(
-      key: ValueKey(true),
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
@@ -343,72 +373,141 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Divider(),
+            SizedBox(height: 10),
             if (selectedCategory == 'Pharma') ...[
-              _buildTextField(dnNoController, 'DL Number', Icons.credit_card),
-              _buildTextField(dlPicController, 'DL Picture', Icons.image),
-              _buildTextField(
-                  dlExpireDateController, 'DL Expiry Date', Icons.date_range,
-                  inputType: TextInputType.datetime,
-                  onTap: () => _selectDate(dlExpireDateController)),
+              TextFormField(
+                controller: dnNoController,
+                decoration: InputDecoration(labelText: 'DN Number'),
+              ),
+              TextFormField(
+                controller: dlPicNameController,
+                readOnly: true,
+                decoration: InputDecoration(
+                  labelText: 'DL Picture',
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.camera_alt),
+                    onPressed: () {
+                      _pickImage(
+                        nameController: dlPicNameController,
+                        onBase64Encoded: (base64) {
+                          dlPicBase64 = base64;
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+              TextFormField(
+                controller: dlExpireDateController,
+                decoration: InputDecoration(labelText: 'DL Expiry Date'),
+                onTap: () => _selectDate(dlExpireDateController),
+              ),
             ],
-            _buildTextField(
-                aadharNoController, 'Aadhar Number', Icons.credit_card),
-            _buildTextField(aadharPicController, 'Aadhar Picture', Icons.image, inputType: TextInputType.number),
-            _buildTextField(gstNoController, 'GST Number', Icons.business),
-            _buildTextField(gstDocController, 'GST Document', Icons.file_copy),
-            _buildTextField(
-                tradeLicController, 'Trade License', Icons.document_scanner),
-            _buildTextField(panNoController, 'PAN Number', Icons.credit_card),
+            TextFormField(
+              controller: aadharNoController,
+              decoration: InputDecoration(labelText: 'Aadhar Number'),
+              keyboardType: TextInputType.number,
+              maxLength: 12,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your Aadhar number';
+                } else if (value.length != 12) {
+                  return 'Aadhar number must be 12 digits';
+                }
+                return null;
+              },
+            ),
+            TextFormField(
+              controller: aadharPicNameController,
+              readOnly: true,
+              decoration: InputDecoration(
+                labelText: 'Aadhar Picture',
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.camera_alt),
+                  onPressed: () {
+                    _pickImage(
+                      nameController: aadharPicNameController,
+                      onBase64Encoded: (base64) {
+                        aadharPicBase64 = base64;
+                      },
+                    );
+                  },
+                ),
+              ),
+            ),
+            TextFormField(
+              controller: gstNoController,
+              decoration: InputDecoration(labelText: 'GST Number'),
+            ),
+            TextFormField(
+              controller: gstDocNameController,
+              readOnly: true,
+              decoration: InputDecoration(
+                labelText: 'GST Document',
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.camera_alt),
+                  onPressed: () {
+                    _pickImage(
+                      nameController: gstDocNameController,
+                      onBase64Encoded: (base64) {
+                        gstDocBase64 = base64;
+                      },
+                    );
+                  },
+                ),
+              ),
+            ),
+            TextFormField(
+              controller: tradeLicController,
+              decoration: InputDecoration(labelText: 'Trade License Number'),
+            ),
+            TextFormField(
+              controller: panNoController,
+              decoration: InputDecoration(labelText: 'PAN Number'),
+            ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildTextField(
-      TextEditingController controller,
-      String label,
-      IconData icon, {
-        TextInputType inputType = TextInputType.text,
-        VoidCallback? onTap,
-      }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: TextFormField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon),
-          border: OutlineInputBorder(),
-        ),
-        keyboardType: inputType,
-        onTap: onTap,
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            if (label.contains('DL Number') ||
-                label.contains('DL Picture') ||
-                label.contains('DL Expiry Date')) {
-              return selectedCategory == 'Pharma'
-                  ? 'Please enter $label'
-                  : null;
-            } else {
-              return 'Please enter $label';
-            }
-          }
-          return null;
-        },
+class CustomButtons extends StatelessWidget {
+  final String text;
+  final VoidCallback onPressed;
+
+  const CustomButtons({required this.text, required this.onPressed, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      child: Text(text),
+      style: ElevatedButton.styleFrom(
+        minimumSize: Size(100, 40),
       ),
     );
   }
 }
 
+class LoginPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Login')),
+      body: Center(child: Text('Login Page')),
+    );
+  }
+}
 
-// import 'dart:math';
-// import 'package:flutter/material.dart';
-// import 'package:http/http.dart' as http;
+
+
+// import 'dart:io';
 // import 'dart:convert';
-// import 'package:intl/intl.dart'; // For date formatting
+// import 'package:flutter/material.dart';
+// import 'package:image_picker/image_picker.dart';
+// import 'package:intl/intl.dart';
+// import 'package:http/http.dart' as http;
 // import 'custom_widget.dart';
 // import 'login.dart';
 //
@@ -422,16 +521,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
 // class _RegistrationPageState extends State<RegistrationPage> {
 //   final _formKey = GlobalKey<FormState>();
 //   bool showBusinessInfo = false;
-//   String selectedCategory = 'PHARMA'; // Default category
+//   String selectedCategory = 'Pharma'; // Default category
 //
 //   // Controllers for personal information
 //   final TextEditingController usernameController = TextEditingController();
 //   final TextEditingController emailController = TextEditingController();
 //   final TextEditingController phoneController = TextEditingController();
-//   final TextEditingController mailingAddressController =
-//       TextEditingController();
-//   final TextEditingController deliveryAddressController =
-//       TextEditingController();
+//   final TextEditingController mailingAddressController = TextEditingController();
+//   final TextEditingController deliveryAddressController = TextEditingController();
 //
 //   // Controllers for business information
 //   final TextEditingController dnNoController = TextEditingController();
@@ -458,11 +555,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
 //         "phone_number": phoneController.text,
 //         "mailing_address": mailingAddressController.text,
 //         "delivery_address": deliveryAddressController.text,
-//         "category":
-//             selectedCategory, // Include category in the registration data
-//         "dn_no": selectedCategory == 'PHARMA' ? dnNoController.text : '',
-//         "dl_pic": selectedCategory == 'PHARMA' ? dlPicController.text : '',
-//         "dl_expire_date": selectedCategory == 'PHARMA'
+//         "category": selectedCategory,
+//         "dn_no": selectedCategory == 'Pharma' ? dnNoController.text : '',
+//         "dl_pic": selectedCategory == 'Pharma' ? dlPicController.text : '',
+//         "dl_expire_date": selectedCategory == 'Pharma'
 //             ? _dateFormat.format(DateTime.parse(dlExpireDateController.text))
 //             : null,
 //         "aadhar_no": aadharNoController.text,
@@ -473,9 +569,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
 //         "pan_no": panNoController.text,
 //       };
 //
-//       print(
-//           "Data to be sent for registration: $registrationData"); // Printing data to the console
-//
 //       try {
 //         final response = await http.post(
 //           url,
@@ -485,31 +578,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
 //           body: jsonEncode(registrationData),
 //         );
 //
-//         print(
-//             'API Response: ${response.body}'); // Print the API response in the console
-//
 //         if (response.statusCode == 201) {
 //           final responseData = jsonDecode(response.body);
 //
 //           if (responseData['message'] == 'Dealer registered successfully.') {
-//             showDialog(
-//               context: context,
-//               builder: (context) {
-//                 return AlertDialog(
-//                   title: Text('Registration Successful'),
-//                   content: Text(
-//                       'You have successfully registered. You will be notified by mail after verification.'),
-//                   actions: [
-//                     TextButton(
-//                       onPressed: () {
-//                         Navigator.pop(context);
-//                       },
-//                       child: Text('OK'),
-//                     ),
-//                   ],
-//                 );
-//               },
-//             );
+//             _showSuccessDialog();
 //           } else {
 //             _showErrorDialog(responseData['message'] ??
 //                 'Registration failed. Please try again.');
@@ -518,10 +591,29 @@ class _RegistrationPageState extends State<RegistrationPage> {
 //           _showErrorDialog(' ${response.body}');
 //         }
 //       } catch (e) {
-//         _showErrorDialog(
-//             'Failed to register. Please check your internet connection and try again.');
+//         _showErrorDialog('Failed to register. Please check your internet connection and try again.');
 //       }
 //     }
+//   }
+//
+//   void _showSuccessDialog() {
+//     showDialog(
+//       context: context,
+//       builder: (context) {
+//         return AlertDialog(
+//           title: Text('Registration Successful'),
+//           content: Text('You have successfully registered. You will be notified by mail after verification.'),
+//           actions: [
+//             TextButton(
+//               onPressed: () {
+//                 Navigator.pop(context);
+//               },
+//               child: Text('OK'),
+//             ),
+//           ],
+//         );
+//       },
+//     );
 //   }
 //
 //   void _showErrorDialog(String message) {
@@ -548,13 +640,51 @@ class _RegistrationPageState extends State<RegistrationPage> {
 //     final DateTime? picked = await showDatePicker(
 //       context: context,
 //       initialDate: DateTime.now(),
-//       firstDate: DateTime(2000),
+//       firstDate: DateTime.now(),
 //       lastDate: DateTime(2101),
 //     );
 //
 //     if (picked != null) {
 //       controller.text = _dateFormat.format(picked);
 //     }
+//   }
+//
+//   // Helper function to pick image and convert to base64
+//   Future<void> _pickImage(TextEditingController controller) async {
+//     final ImagePicker _picker = ImagePicker();
+//     final XFile? image = await _picker.pickImage(
+//       source: await _showImageSourceDialog(),
+//     );
+//
+//     if (image != null) {
+//       File imageFile = File(image.path);
+//       List<int> imageBytes = await imageFile.readAsBytes();
+//       String base64Image = base64Encode(imageBytes);
+//
+//       setState(() {
+//         controller.text = base64Image;
+//       });
+//     }
+//   }
+//
+//   // Dialog to select image source (camera or gallery)
+//   Future<ImageSource> _showImageSourceDialog() async {
+//     return await showDialog<ImageSource>(
+//       context: context,
+//       builder: (context) => AlertDialog(
+//         title: Text('Choose Image Source'),
+//         actions: [
+//           TextButton(
+//             onPressed: () => Navigator.pop(context, ImageSource.camera),
+//             child: Text('Camera'),
+//           ),
+//           TextButton(
+//             onPressed: () => Navigator.pop(context, ImageSource.gallery),
+//             child: Text('Gallery'),
+//           ),
+//         ],
+//       ),
+//     ) ?? ImageSource.gallery;
 //   }
 //
 //   @override
@@ -570,34 +700,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
 //               child: Column(
 //                 mainAxisAlignment: MainAxisAlignment.center,
 //                 children: [
-//                   // Logo at the top of the form
 //                   Image.asset(
-//                     'assets/logos/evara_logo2.png', // Replace with your logo asset path
+//                     'assets/logos/evara_logo2.png',
 //                     height: 230,
 //                   ),
 //                   AnimatedSwitcher(
 //                     duration: Duration(milliseconds: 500),
-//                     transitionBuilder: (child, animation) {
-//                       final rotate =
-//                           Tween(begin: pi / 2, end: 0.0).animate(animation);
-//                       return AnimatedBuilder(
-//                         animation: rotate,
-//                         child: child,
-//                         builder: (context, child) {
-//                           final isUnder =
-//                               (ValueKey(showBusinessInfo) != child?.key);
-//                           var tilt =
-//                               (isUnder ? 0.003 : 0.0) * pi * animation.value;
-//                           tilt *= isUnder ? -1.0 : 1.0;
-//                           return Transform(
-//                             transform: Matrix4.rotationY(rotate.value)
-//                               ..setEntry(3, 0, tilt),
-//                             alignment: Alignment.center,
-//                             child: child,
-//                           );
-//                         },
-//                       );
-//                     },
 //                     child: showBusinessInfo
 //                         ? _buildBusinessInfoCard()
 //                         : _buildPersonalInfoCard(),
@@ -657,7 +765,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
 //
 //   Widget _buildPersonalInfoCard() {
 //     return Card(
-//       key: ValueKey(false),
 //       elevation: 2,
 //       shape: RoundedRectangleBorder(
 //         borderRadius: BorderRadius.circular(10),
@@ -675,24 +782,17 @@ class _RegistrationPageState extends State<RegistrationPage> {
 //             ),
 //             Divider(),
 //             _buildTextField(usernameController, 'Username', Icons.person),
-//             _buildTextField(emailController, 'Email', Icons.email,
-//                 inputType: TextInputType.emailAddress),
-//             _buildTextField(phoneController, 'Phone Number', Icons.phone,
-//                 inputType: TextInputType.phone),
-//             _buildTextField(
-//                 mailingAddressController, 'Mailing Address', Icons.home),
-//             _buildTextField(deliveryAddressController, 'Delivery Address',
-//                 Icons.location_on),
+//             _buildTextField(emailController, 'Email', Icons.email, inputType: TextInputType.emailAddress),
+//             _buildTextField(phoneController, 'Phone Number', Icons.phone, inputType: TextInputType.phone),
+//             _buildTextField(mailingAddressController, 'Mailing Address', Icons.home),
+//             _buildTextField(deliveryAddressController, 'Delivery Address', Icons.location_on),
 //             SizedBox(height: 10),
 //             Column(
 //               crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
+//               children: [
 //                 Text(
 //                   'Select Category:',
-//                   style: TextStyle(
-//                     fontSize: 16,
-//                     fontWeight: FontWeight.bold,
-//                   ),
+//                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
 //                 ),
 //                 Row(
 //                   mainAxisAlignment: MainAxisAlignment.start,
@@ -725,7 +825,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
 //                 ),
 //               ],
 //             ),
-//
 //           ],
 //         ),
 //       ),
@@ -734,7 +833,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
 //
 //   Widget _buildBusinessInfoCard() {
 //     return Card(
-//       key: ValueKey(true),
 //       elevation: 2,
 //       shape: RoundedRectangleBorder(
 //         borderRadius: BorderRadius.circular(10),
@@ -745,27 +843,20 @@ class _RegistrationPageState extends State<RegistrationPage> {
 //           children: [
 //             Text(
 //               'Business Information',
-//               style: TextStyle(
-//                 fontSize: 18,
-//                 fontWeight: FontWeight.bold,
-//               ),
+//               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
 //             ),
 //             Divider(),
-//             if (selectedCategory == 'PHARMA') ...[
+//             if (selectedCategory == 'Pharma') ...[
 //               _buildTextField(dnNoController, 'DL Number', Icons.credit_card),
-//               _buildTextField(dlPicController, 'DL Picture', Icons.image),
-//               _buildTextField(
-//                   dlExpireDateController, 'DL Expiry Date', Icons.date_range,
-//                   inputType: TextInputType.datetime,
-//                   onTap: () => _selectDate(dlExpireDateController)),
+//               _buildTextField(dlPicController, 'DL Picture', Icons.image, onTap: () => _pickImage(dlPicController)),
+//               _buildTextField(dlExpireDateController, 'DL Expiry Date', Icons.date_range,
+//                   inputType: TextInputType.datetime, onTap: () => _selectDate(dlExpireDateController)),
 //             ],
-//             _buildTextField(
-//                 aadharNoController, 'Aadhar Number', Icons.credit_card),
-//             _buildTextField(aadharPicController, 'Aadhar Picture', Icons.image),
+//             _buildTextField(aadharNoController, 'Aadhar Number', Icons.credit_card),
+//             _buildTextField(aadharPicController, 'Aadhar Picture', Icons.image, onTap: () => _pickImage(aadharPicController)),
 //             _buildTextField(gstNoController, 'GST Number', Icons.business),
-//             _buildTextField(gstDocController, 'GST Document', Icons.file_copy),
-//             _buildTextField(
-//                 tradeLicController, 'Trade License', Icons.document_scanner),
+//             _buildTextField(gstDocController, 'GST Document', Icons.file_copy, onTap: () => _pickImage(gstDocController)),
+//             _buildTextField(tradeLicController, 'Trade License', Icons.document_scanner),
 //             _buildTextField(panNoController, 'PAN Number', Icons.credit_card),
 //           ],
 //         ),
@@ -774,12 +865,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
 //   }
 //
 //   Widget _buildTextField(
-//     TextEditingController controller,
-//     String label,
-//     IconData icon, {
-//     TextInputType inputType = TextInputType.text,
-//     VoidCallback? onTap,
-//   }) {
+//       TextEditingController controller,
+//       String label,
+//       IconData icon, {
+//         TextInputType inputType = TextInputType.text,
+//         VoidCallback? onTap,
+//       }) {
 //     return Padding(
 //       padding: const EdgeInsets.symmetric(vertical: 8.0),
 //       child: TextFormField(
@@ -790,15 +881,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
 //           border: OutlineInputBorder(),
 //         ),
 //         keyboardType: inputType,
+//         readOnly: onTap != null, // Read-only for image fields
 //         onTap: onTap,
 //         validator: (value) {
 //           if (value == null || value.isEmpty) {
-//             if (label.contains('DL Number') ||
-//                 label.contains('DL Picture') ||
-//                 label.contains('DL Expiry Date')) {
-//               return selectedCategory == 'PHARMA'
-//                   ? 'Please enter $label'
-//                   : null;
+//             if (label.contains('DL Number') || label.contains('DL Picture') || label.contains('DL Expiry Date')) {
+//               return selectedCategory == 'Pharma' ? 'Please enter $label' : null;
 //             } else {
 //               return 'Please enter $label';
 //             }
@@ -814,12 +902,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
 //
 //
 //
+//
+//
 // // import 'dart:math';
 // // import 'package:flutter/material.dart';
 // // import 'package:http/http.dart' as http;
 // // import 'dart:convert';
 // // import 'package:intl/intl.dart'; // For date formatting
-// //
 // // import 'custom_widget.dart';
 // // import 'login.dart';
 // //
@@ -833,14 +922,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
 // // class _RegistrationPageState extends State<RegistrationPage> {
 // //   final _formKey = GlobalKey<FormState>();
 // //   bool showBusinessInfo = false;
-// //   String category = 'PHARMA'; // Default category is PHARMA
+// //   String selectedCategory = 'Pharma'; // Default category
 // //
 // //   // Controllers for personal information
 // //   final TextEditingController usernameController = TextEditingController();
 // //   final TextEditingController emailController = TextEditingController();
 // //   final TextEditingController phoneController = TextEditingController();
-// //   final TextEditingController mailingAddressController = TextEditingController();
-// //   final TextEditingController deliveryAddressController = TextEditingController();
+// //   final TextEditingController mailingAddressController =
+// //   TextEditingController();
+// //   final TextEditingController deliveryAddressController =
+// //   TextEditingController();
 // //
 // //   // Controllers for business information
 // //   final TextEditingController dnNoController = TextEditingController();
@@ -858,7 +949,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
 // //
 // //   Future<void> _registerUser() async {
 // //     if (_formKey.currentState!.validate()) {
-// //       final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/auth/register.php');
+// //       final url = Uri.parse(
+// //           'https://namami-infotech.com/EvaraBackend/src/auth/register.php');
 // //
 // //       final registrationData = {
 // //         "username": usernameController.text,
@@ -866,10 +958,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
 // //         "phone_number": phoneController.text,
 // //         "mailing_address": mailingAddressController.text,
 // //         "delivery_address": deliveryAddressController.text,
-// //         "category": category,  // Add the category field to registration data
-// //         "dn_no": dnNoController.text,
-// //         "dl_pic": dlPicController.text,
-// //         "dl_expire_date": dlExpireDateController.text.isNotEmpty ? _dateFormat.format(DateTime.parse(dlExpireDateController.text)) : null,
+// //         "category":
+// //         selectedCategory, // Include category in the registration data
+// //         "dn_no": selectedCategory == 'Pharma' ? dnNoController.text : '',
+// //         "dl_pic": selectedCategory == 'Pharma' ? dlPicController.text : '',
+// //         "dl_expire_date": selectedCategory == 'Pharma'
+// //             ? _dateFormat.format(DateTime.parse(dlExpireDateController.text))
+// //             : null,
 // //         "aadhar_no": aadharNoController.text,
 // //         "aadhar_pic": aadharPicController.text,
 // //         "gst_no": gstNoController.text,
@@ -878,7 +973,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
 // //         "pan_no": panNoController.text,
 // //       };
 // //
-// //       print("Data to be sent for registration: $registrationData");
+// //       print(
+// //           "Data to be sent for registration: $registrationData"); // Printing data to the console
 // //
 // //       try {
 // //         final response = await http.post(
@@ -889,7 +985,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
 // //           body: jsonEncode(registrationData),
 // //         );
 // //
-// //         print('API Response: ${response.body}');
+// //         print(
+// //             'API Response: ${response.body}'); // Print the API response in the console
 // //
 // //         if (response.statusCode == 201) {
 // //           final responseData = jsonDecode(response.body);
@@ -900,7 +997,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
 // //               builder: (context) {
 // //                 return AlertDialog(
 // //                   title: Text('Registration Successful'),
-// //                   content: Text('You have successfully registered. You will be notified by mail after verification.'),
+// //                   content: Text(
+// //                       'You have successfully registered. You will be notified by mail after verification.'),
 // //                   actions: [
 // //                     TextButton(
 // //                       onPressed: () {
@@ -913,13 +1011,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
 // //               },
 // //             );
 // //           } else {
-// //             _showErrorDialog(responseData['message'] ?? 'Registration failed. Please try again.');
+// //             _showErrorDialog(responseData['message'] ??
+// //                 'Registration failed. Please try again.');
 // //           }
 // //         } else {
 // //           _showErrorDialog(' ${response.body}');
 // //         }
 // //       } catch (e) {
-// //         _showErrorDialog('Failed to register. Please check your internet connection and try again.');
+// //         _showErrorDialog(
+// //             'Failed to register. Please check your internet connection and try again.');
 // //       }
 // //     }
 // //   }
@@ -948,7 +1048,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 // //     final DateTime? picked = await showDatePicker(
 // //       context: context,
 // //       initialDate: DateTime.now(),
-// //       firstDate: DateTime(2000),
+// //       firstDate: DateTime.now(),//DateTime(2000),
 // //       lastDate: DateTime(2101),
 // //     );
 // //
@@ -970,31 +1070,37 @@ class _RegistrationPageState extends State<RegistrationPage> {
 // //               child: Column(
 // //                 mainAxisAlignment: MainAxisAlignment.center,
 // //                 children: [
+// //                   // Logo at the top of the form
 // //                   Image.asset(
 // //                     'assets/logos/evara_logo2.png', // Replace with your logo asset path
 // //                     height: 230,
 // //                   ),
-// //                   _buildCategorySelection(), // Add category selection
 // //                   AnimatedSwitcher(
 // //                     duration: Duration(milliseconds: 500),
 // //                     transitionBuilder: (child, animation) {
-// //                       final rotate = Tween(begin: pi / 2, end: 0.0).animate(animation);
+// //                       final rotate =
+// //                       Tween(begin: pi / 2, end: 0.0).animate(animation);
 // //                       return AnimatedBuilder(
 // //                         animation: rotate,
 // //                         child: child,
 // //                         builder: (context, child) {
-// //                           final isUnder = (ValueKey(showBusinessInfo) != child?.key);
-// //                           var tilt = (isUnder ? 0.003 : 0.0) * pi * animation.value;
+// //                           final isUnder =
+// //                           (ValueKey(showBusinessInfo) != child?.key);
+// //                           var tilt =
+// //                               (isUnder ? 0.003 : 0.0) * pi * animation.value;
 // //                           tilt *= isUnder ? -1.0 : 1.0;
 // //                           return Transform(
-// //                             transform: Matrix4.rotationY(rotate.value)..setEntry(3, 0, tilt),
+// //                             transform: Matrix4.rotationY(rotate.value)
+// //                               ..setEntry(3, 0, tilt),
 // //                             alignment: Alignment.center,
 // //                             child: child,
 // //                           );
 // //                         },
 // //                       );
 // //                     },
-// //                     child: showBusinessInfo ? _buildBusinessInfoCard() : _buildPersonalInfoCard(),
+// //                     child: showBusinessInfo
+// //                         ? _buildBusinessInfoCard()
+// //                         : _buildPersonalInfoCard(),
 // //                   ),
 // //                   SizedBox(height: 10),
 // //                   Row(
@@ -1049,79 +1155,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
 // //     );
 // //   }
 // //
-// //    _buildCategorySelection() {
-// //     return Column(
-// //       crossAxisAlignment: CrossAxisAlignment.start,
-// //       children: [
-// //         Text(
-// //           'Select Category:',
-// //           style: TextStyle(
-// //             fontSize: 16,
-// //             fontWeight: FontWeight.bold,
-// //           ),
-// //         ),
-// //         Row(
-// //           children: [
-// //             Expanded(
-// //               child: RadioListTile<String>(
-// //                 title: Text('PHARMA'),
-// //                 value: 'PHARMA',
-// //                 groupValue: category,
-// //                 onChanged: (value) {
-// //                   setState(() {
-// //                     category = value!;
-// //                   });
-// //                 },
-// //               ),
-// //             ),
-// //             Expanded(
-// //               child: RadioListTile<String>(
-// //                 title: Text('FMCG'),
-// //                 value: 'FMCG',
-// //                 groupValue: category,
-// //                 onChanged: (value) {
-// //                   setState(() {
-// //                     category = value!;
-// //                   });
-// //                 },
-// //               ),
-// //             ),
-// //           ],
-// //         ),
-// //       ],
-// //     );
-// //   }
-// //
-// //   // Widget _buildPersonalInfoCard() {
-// //   //   return Card(
-// //   //     key: ValueKey(false),
-// //   //     elevation: 2,
-// //   //     shape: RoundedRectangleBorder(
-// //   //       borderRadius: BorderRadius.circular(10),
-// //   //     ),
-// //   //     child: Padding(
-// //   //       padding: const EdgeInsets.all(12.0),
-// //   //       child: Column(
-// //   //         children: [
-// //   //           Text(
-// //   //             'Personal Information',
-// //   //             style: TextStyle(
-// //   //               fontSize: 18,
-// //   //               fontWeight: FontWeight.bold,
-// //   //             ),
-// //   //           ),
-// //   //           Divider(),
-// //   //           _buildTextField(usernameController, 'Username', Icons.person),
-// //   //           _buildTextField(emailController, 'Email', Icons.email, inputType: TextInputType.emailAddress),
-// //   //           _buildTextField(phoneController, 'Phone Number', Icons.phone, inputType: TextInputType.phone),
-// //   //           _buildTextField(mailingAddressController, 'Mailing Address', Icons.home),
-// //   //           _buildTextField(deliveryAddressController, 'Delivery Address', Icons.location_on),
-// //   //         ],
-// //   //       ),
-// //   //     ),
-// //   //   );
-// //   // }
-// //
 // //   Widget _buildPersonalInfoCard() {
 // //     return Card(
 // //       key: ValueKey(false),
@@ -1145,11 +1178,50 @@ class _RegistrationPageState extends State<RegistrationPage> {
 // //             _buildTextField(emailController, 'Email', Icons.email, inputType: TextInputType.emailAddress),
 // //             _buildTextField(phoneController, 'Phone Number', Icons.phone, inputType: TextInputType.phone),
 // //             _buildTextField(mailingAddressController, 'Mailing Address', Icons.home),
-// //             _buildTextField(deliveryAddressController, 'Delivery Address', Icons.location_on),
-// //
-// //             // Adding Category Selection below the Delivery Address field
-// //             SizedBox(height: 10),  // Adding space before category selection
-// //             _buildCategorySelection(),  // Category selection widget
+// //             _buildTextField(deliveryAddressController, 'Delivery Address',
+// //                 Icons.location_on),
+// //             SizedBox(height: 10),
+// //             Column(
+// //               crossAxisAlignment: CrossAxisAlignment.start,
+// //               children: [
+// //                 Text(
+// //                   'Select Category:',
+// //                   style: TextStyle(
+// //                     fontSize: 16,
+// //                     fontWeight: FontWeight.bold,
+// //                   ),
+// //                 ),
+// //                 Row(
+// //                   mainAxisAlignment: MainAxisAlignment.start,
+// //                   children: [
+// //                     Expanded(
+// //                       child: RadioListTile<String>(
+// //                         title: Text('Pharma'),
+// //                         value: 'Pharma',
+// //                         groupValue: selectedCategory,
+// //                         onChanged: (value) {
+// //                           setState(() {
+// //                             selectedCategory = value!;
+// //                           });
+// //                         },
+// //                       ),
+// //                     ),
+// //                     Expanded(
+// //                       child: RadioListTile<String>(
+// //                         title: Text('General'),
+// //                         value: 'General',
+// //                         groupValue: selectedCategory,
+// //                         onChanged: (value) {
+// //                           setState(() {
+// //                             selectedCategory = value!;
+// //                           });
+// //                         },
+// //                       ),
+// //                     ),
+// //                   ],
+// //                 ),
+// //               ],
+// //             ),
 // //           ],
 // //         ),
 // //       ),
@@ -1175,442 +1247,63 @@ class _RegistrationPageState extends State<RegistrationPage> {
 // //               ),
 // //             ),
 // //             Divider(),
-// //             _buildTextField(dnNoController, 'DN No', Icons.business,
-// //                 isMandatory: category == 'PHARMA'), // Conditional validation
-// //             _buildTextField(dlPicController, 'DL Pic URL', Icons.image,
-// //                 isMandatory: category == 'PHARMA'), // Conditional validation
-// //             _buildDatePickerField(dlExpireDateController, 'DL Expire Date',
-// //                 isMandatory: category == 'PHARMA'), // Conditional validation
-// //             _buildTextField(aadharNoController, 'Aadhar No', Icons.credit_card),
-// //             _buildTextField(aadharPicController, 'Aadhar Pic URL', Icons.image),
-// //             _buildTextField(gstNoController, 'GST No', Icons.credit_card),
-// //             _buildTextField(gstDocController, 'GST Doc URL', Icons.image),
-// //             _buildTextField(tradeLicController, 'Trade License No', Icons.business),
-// //             _buildTextField(panNoController, 'PAN No', Icons.credit_card),
+// //             if (selectedCategory == 'Pharma') ...[
+// //               _buildTextField(dnNoController, 'DL Number', Icons.credit_card),
+// //               _buildTextField(dlPicController, 'DL Picture', Icons.image),
+// //               _buildTextField(
+// //                   dlExpireDateController, 'DL Expiry Date', Icons.date_range,
+// //                   inputType: TextInputType.datetime,
+// //                   onTap: () => _selectDate(dlExpireDateController)),
+// //             ],
+// //             _buildTextField(
+// //                 aadharNoController, 'Aadhar Number', Icons.credit_card),
+// //             _buildTextField(aadharPicController, 'Aadhar Picture', Icons.image, inputType: TextInputType.number),
+// //             _buildTextField(gstNoController, 'GST Number', Icons.business),
+// //             _buildTextField(gstDocController, 'GST Document', Icons.file_copy),
+// //             _buildTextField(tradeLicController, 'Trade License', Icons.document_scanner),
+// //             _buildTextField(panNoController, 'PAN Number', Icons.credit_card),
 // //           ],
 // //         ),
 // //       ),
 // //     );
 // //   }
 // //
-// //   Widget _buildTextField(TextEditingController controller, String hintText, IconData icon,
-// //       {TextInputType inputType = TextInputType.text, bool isMandatory = true}) {
+// //   Widget _buildTextField(
+// //       TextEditingController controller,
+// //       String label,
+// //       IconData icon, {
+// //         TextInputType inputType = TextInputType.text,
+// //         VoidCallback? onTap,
+// //       }) {
 // //     return Padding(
 // //       padding: const EdgeInsets.symmetric(vertical: 8.0),
 // //       child: TextFormField(
 // //         controller: controller,
-// //         keyboardType: inputType,
 // //         decoration: InputDecoration(
+// //           labelText: label,
 // //           prefixIcon: Icon(icon),
-// //           labelText: hintText,
-// //           border: OutlineInputBorder(
-// //             borderRadius: BorderRadius.circular(8),
-// //           ),
+// //           border: OutlineInputBorder(),
 // //         ),
-// //         validator: isMandatory
-// //             ? (value) {
+// //         keyboardType: inputType,
+// //         onTap: onTap,
+// //         validator: (value) {
 // //           if (value == null || value.isEmpty) {
-// //             return 'Please enter $hintText';
+// //             if (label.contains('DL Number') ||
+// //                 label.contains('DL Picture') ||
+// //                 label.contains('DL Expiry Date')) {
+// //               return selectedCategory == 'Pharma'
+// //                   ? 'Please enter $label'
+// //                   : null;
+// //             } else {
+// //               return 'Please enter $label';
+// //             }
 // //           }
 // //           return null;
-// //         }
-// //             : null, // Validator is null if not mandatory
-// //       ),
-// //     );
-// //   }
-// //
-// //   Widget _buildDatePickerField(TextEditingController controller, String labelText, {bool isMandatory = true}) {
-// //     return Padding(
-// //       padding: const EdgeInsets.symmetric(vertical: 8.0),
-// //       child: TextFormField(
-// //         onTap: () => _selectDate(controller),
-// //         controller: controller,
-// //         decoration: InputDecoration(
-// //           labelText: labelText,
-// //           border: OutlineInputBorder(
-// //             borderRadius: BorderRadius.circular(8),
-// //           ),
-// //           prefixIcon: IconButton(
-// //             icon: Icon(Icons.calendar_today),
-// //             onPressed: () => _selectDate(controller),
-// //           ),
-// //         ),
-// //         readOnly: true,
-// //         validator: isMandatory
-// //             ? (value) {
-// //           if (value == null || value.isEmpty) {
-// //             return 'Please select $labelText';
-// //           }
-// //           return null;
-// //         }
-// //             : null, // Validator is null if not mandatory
+// //         },
 // //       ),
 // //     );
 // //   }
 // // }
 // //
 // //
-// // //
-// // // import 'dart:math';
-// // //
-// // // import 'package:flutter/material.dart';
-// // // import 'package:http/http.dart' as http;
-// // // import 'dart:convert';
-// // // import 'package:intl/intl.dart'; // For date formatting
-// // //
-// // // import 'custom_widget.dart';
-// // // import 'login.dart';
-// // //
-// // // class RegistrationPage extends StatefulWidget {
-// // //   const RegistrationPage({Key? key}) : super(key: key);
-// // //
-// // //   @override
-// // //   _RegistrationPageState createState() => _RegistrationPageState();
-// // // }
-// // //
-// // // class _RegistrationPageState extends State<RegistrationPage> {
-// // //   final _formKey = GlobalKey<FormState>();
-// // //   bool showBusinessInfo = false;
-// // //
-// // //   // Controllers for personal information
-// // //   final TextEditingController usernameController = TextEditingController();
-// // //   final TextEditingController emailController = TextEditingController();
-// // //   final TextEditingController phoneController = TextEditingController();
-// // //   final TextEditingController mailingAddressController = TextEditingController();
-// // //   final TextEditingController deliveryAddressController = TextEditingController();
-// // //
-// // //   // Controllers for business information
-// // //   final TextEditingController dnNoController = TextEditingController();
-// // //   final TextEditingController dlPicController = TextEditingController();
-// // //   final TextEditingController dlExpireDateController = TextEditingController();
-// // //   final TextEditingController aadharNoController = TextEditingController();
-// // //   final TextEditingController aadharPicController = TextEditingController();
-// // //   final TextEditingController gstNoController = TextEditingController();
-// // //   final TextEditingController gstDocController = TextEditingController();
-// // //   final TextEditingController tradeLicController = TextEditingController();
-// // //   final TextEditingController panNoController = TextEditingController();
-// // //
-// // //   // Date format
-// // //   final DateFormat _dateFormat = DateFormat('yyyy-MM-dd');
-// // //
-// // //   Future<void> _registerUser() async {
-// // //     if (_formKey.currentState!.validate()) {
-// // //       final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/auth/register.php');
-// // //
-// // //       final registrationData = {
-// // //         "username": usernameController.text,
-// // //         "email": emailController.text,
-// // //         "phone_number": phoneController.text,
-// // //         "mailing_address": mailingAddressController.text,
-// // //         "delivery_address": deliveryAddressController.text,
-// // //         "dn_no": dnNoController.text,
-// // //         "dl_pic": dlPicController.text,
-// // //         "dl_expire_date": _dateFormat.format(DateTime.parse(dlExpireDateController.text)),
-// // //         "aadhar_no": aadharNoController.text,
-// // //         "aadhar_pic": aadharPicController.text,
-// // //         "gst_no": gstNoController.text,
-// // //         "gst_doc": gstDocController.text,
-// // //         "trade_lic": tradeLicController.text,
-// // //         "pan_no": panNoController.text,
-// // //       };
-// // //
-// // //       print("Data to be sent for registration: $registrationData"); // Printing data to the console
-// // //
-// // //       try {
-// // //         final response = await http.post(
-// // //           url,
-// // //           headers: {
-// // //             'Content-Type': 'application/json',
-// // //           },
-// // //           body: jsonEncode(registrationData),
-// // //         );
-// // //
-// // //         print('API Response: ${response.body}'); // Print the API response in the console
-// // //
-// // //         if (response.statusCode == 201) {
-// // //           final responseData = jsonDecode(response.body);
-// // //
-// // //           if (responseData['message'] == 'Dealer registered successfully.') {
-// // //             showDialog(
-// // //               context: context,
-// // //               builder: (context) {
-// // //                 return AlertDialog(
-// // //                   title: Text('Registration Successful'),
-// // //                   content: Text('You have successfully registered. You will be notified by mail after verification.'),
-// // //                   actions: [
-// // //                     TextButton(
-// // //                       onPressed: () {
-// // //                         Navigator.pop(context);
-// // //                       },
-// // //                       child: Text('OK'),
-// // //                     ),
-// // //                   ],
-// // //                 );
-// // //               },
-// // //             );
-// // //           } else {
-// // //             _showErrorDialog(responseData['message'] ?? 'Registration failed. Please try again.');
-// // //           }
-// // //         } else {
-// // //           _showErrorDialog(' ${response.body}');//_showErrorDialog('Error: ${response.statusCode}. Please try again later.');
-// // //         }
-// // //       } catch (e) {
-// // //         _showErrorDialog('Failed to register. Please check your internet connection and try again.');
-// // //       }
-// // //     }
-// // //   }
-// // //
-// // //   void _showErrorDialog(String message) {
-// // //     showDialog(
-// // //       context: context,
-// // //       builder: (context) {
-// // //         return AlertDialog(
-// // //           title: Text('Error'),
-// // //           content: Text(message),
-// // //           actions: [
-// // //             TextButton(
-// // //               onPressed: () {
-// // //                 Navigator.pop(context);
-// // //               },
-// // //               child: Text('OK'),
-// // //             ),
-// // //           ],
-// // //         );
-// // //       },
-// // //     );
-// // //   }
-// // //
-// // //   Future<void> _selectDate(TextEditingController controller) async {
-// // //     final DateTime? picked = await showDatePicker(
-// // //       context: context,
-// // //       initialDate: DateTime.now(),
-// // //       firstDate: DateTime(2000),
-// // //       lastDate: DateTime(2101),
-// // //     );
-// // //
-// // //     if (picked != null) {
-// // //       controller.text = _dateFormat.format(picked);
-// // //     }
-// // //   }
-// // //
-// // //   @override
-// // //   Widget build(BuildContext context) {
-// // //     return Scaffold(
-// // //       backgroundColor: Colors.white,
-// // //       body: Center(
-// // //         child: SingleChildScrollView(
-// // //           child: Padding(
-// // //             padding: const EdgeInsets.all(25.0),
-// // //             child: Form(
-// // //               key: _formKey,
-// // //               child: Column(
-// // //                 mainAxisAlignment: MainAxisAlignment.center,
-// // //                 children: [
-// // //                   // Logo at the top of the form
-// // //                   Image.asset(
-// // //                     'assets/logos/evara_logo2.png', // Replace with your logo asset path
-// // //                     height: 230,
-// // //                    // width: 100,
-// // //                   ),
-// // //                   // SizedBox(height: 5),
-// // //                   // Text(
-// // //                   //   'Registration',
-// // //                   //   style: TextStyle(
-// // //                   //     fontSize: 20,
-// // //                   //     fontWeight: FontWeight.bold,
-// // //                   //     color: Colors.deepPurple,
-// // //                   //   ),
-// // //                   // ),
-// // //                  // SizedBox(height: 10),
-// // //                   AnimatedSwitcher(
-// // //                     duration: Duration(milliseconds: 500),
-// // //                     transitionBuilder: (child, animation) {
-// // //                       final rotate = Tween(begin: pi / 2, end: 0.0).animate(animation);
-// // //                       return AnimatedBuilder(
-// // //                         animation: rotate,
-// // //                         child: child,
-// // //                         builder: (context, child) {
-// // //                           final isUnder = (ValueKey(showBusinessInfo) != child?.key);
-// // //                           var tilt = (isUnder ? 0.003 : 0.0) * pi * animation.value;
-// // //                           tilt *= isUnder ? -1.0 : 1.0;
-// // //                           return Transform(
-// // //                             transform: Matrix4.rotationY(rotate.value)..setEntry(3, 0, tilt),
-// // //                             alignment: Alignment.center,
-// // //                             child: child,
-// // //                           );
-// // //                         },
-// // //                       );
-// // //                     },
-// // //                     child: showBusinessInfo ? _buildBusinessInfoCard() : _buildPersonalInfoCard(),
-// // //                   ),
-// // //                   SizedBox(height: 10),
-// // //                   Row(
-// // //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-// // //                     children: [
-// // //                       if (showBusinessInfo)
-// // //                         CustomButton(
-// // //                           text: 'Previous',
-// // //                           onPressed: () {
-// // //                             setState(() {
-// // //                               showBusinessInfo = false;
-// // //                             });
-// // //                           },
-// // //                         ),
-// // //                       CustomButton(
-// // //                         text: showBusinessInfo ? 'Submit' : 'Next',
-// // //                         onPressed: () {
-// // //                           if (_formKey.currentState!.validate()) {
-// // //                             if (showBusinessInfo) {
-// // //                               _registerUser();
-// // //                             } else {
-// // //                               setState(() {
-// // //                                 showBusinessInfo = true;
-// // //                               });
-// // //                             }
-// // //                           }
-// // //                         },
-// // //                       ),
-// // //                     ],
-// // //                   ),
-// // //                   SizedBox(height: 10),
-// // //                   TextButton(
-// // //                     onPressed: () {
-// // //                       Navigator.push(
-// // //                         context,
-// // //                         MaterialPageRoute(builder: (context) => LoginPage()),
-// // //                       );
-// // //                     },
-// // //                     child: Text(
-// // //                       "Already have an account? Login",
-// // //                       style: TextStyle(
-// // //                         color: Colors.black,
-// // //                       ),
-// // //                     ),
-// // //                   ),
-// // //                 ],
-// // //               ),
-// // //             ),
-// // //           ),
-// // //         ),
-// // //       ),
-// // //     );
-// // //   }
-// // //
-// // //   Widget _buildPersonalInfoCard() {
-// // //     return Card(
-// // //       key: ValueKey(false),
-// // //       elevation: 2,
-// // //       shape: RoundedRectangleBorder(
-// // //         borderRadius: BorderRadius.circular(10),
-// // //       ),
-// // //       child: Padding(
-// // //         padding: const EdgeInsets.all(12.0),
-// // //         child: Column(
-// // //           children: [
-// // //             Text(
-// // //               'Personal Information',
-// // //               style: TextStyle(
-// // //                 fontSize: 18,
-// // //                 fontWeight: FontWeight.bold,
-// // //               ),
-// // //             ),
-// // //             Divider(),
-// // //             _buildTextField(usernameController, 'Username', Icons.person),
-// // //             _buildTextField(emailController, 'Email', Icons.email, inputType: TextInputType.emailAddress),
-// // //             _buildTextField(phoneController, 'Phone Number', Icons.phone, inputType: TextInputType.phone),
-// // //             _buildTextField(mailingAddressController, 'Mailing Address', Icons.home),
-// // //             _buildTextField(deliveryAddressController, 'Delivery Address', Icons.location_on),
-// // //           ],
-// // //         ),
-// // //       ),
-// // //     );
-// // //   }
-// // //
-// // //   Widget _buildBusinessInfoCard() {
-// // //     return Card(
-// // //       key: ValueKey(true),
-// // //       elevation: 2,
-// // //       shape: RoundedRectangleBorder(
-// // //         borderRadius: BorderRadius.circular(10),
-// // //       ),
-// // //       child: Padding(
-// // //         padding: const EdgeInsets.all(12.0),
-// // //         child: Column(
-// // //           children: [
-// // //             Text(
-// // //               'Business Information',
-// // //               style: TextStyle(
-// // //                 fontSize: 18,
-// // //                 fontWeight: FontWeight.bold,
-// // //               ),
-// // //             ),
-// // //             Divider(),
-// // //             _buildTextField(dnNoController, 'DN No', Icons.business),
-// // //             _buildTextField(dlPicController, 'DL Pic URL', Icons.image),
-// // //             _buildDatePickerField(dlExpireDateController, 'DL Expire Date'),
-// // //             _buildTextField(aadharNoController, 'Aadhar No', Icons.credit_card),
-// // //             _buildTextField(aadharPicController, 'Aadhar Pic URL', Icons.image),
-// // //             _buildTextField(gstNoController, 'GST No', Icons.credit_card),
-// // //             _buildTextField(gstDocController, 'GST Doc URL', Icons.image),
-// // //             _buildTextField(tradeLicController, 'Trade License No', Icons.business),
-// // //             _buildTextField(panNoController, 'PAN No', Icons.credit_card),
-// // //           ],
-// // //         ),
-// // //       ),
-// // //     );
-// // //   }
-// // //
-// // //   Widget _buildTextField(TextEditingController controller, String hintText, IconData icon, {TextInputType inputType = TextInputType.text}) {
-// // //     return Padding(
-// // //       padding: const EdgeInsets.symmetric(vertical: 8.0),
-// // //       child: TextFormField(
-// // //         controller: controller,
-// // //         keyboardType: inputType,
-// // //         decoration: InputDecoration(
-// // //           prefixIcon: Icon(icon),
-// // //           labelText: hintText,
-// // //           border: OutlineInputBorder(
-// // //             borderRadius: BorderRadius.circular(8),
-// // //           ),
-// // //         ),
-// // //         validator: (value) {
-// // //           if (value == null || value.isEmpty) {
-// // //             return 'Please enter $hintText';
-// // //           }
-// // //           return null;
-// // //         },
-// // //       ),
-// // //     );
-// // //   }
-// // //
-// // //   Widget _buildDatePickerField(TextEditingController controller, String labelText) {
-// // //     return Padding(
-// // //       padding: const EdgeInsets.symmetric(vertical: 8.0),
-// // //       child: TextFormField(
-// // //         onTap: () => _selectDate(controller),
-// // //         controller: controller,
-// // //         decoration: InputDecoration(
-// // //           //prefixIcon: Icon(Icons.date_range),
-// // //           labelText: labelText,
-// // //           border: OutlineInputBorder(
-// // //             borderRadius: BorderRadius.circular(8),
-// // //           ),
-// // //           prefixIcon: IconButton(
-// // //             icon: Icon(Icons.calendar_today),
-// // //             onPressed: () => _selectDate(controller),
-// // //           ),
-// // //         ),
-// // //         readOnly: true,
-// // //         validator: (value) {
-// // //           if (value == null || value.isEmpty) {
-// // //             return 'Please select $labelText';
-// // //           }
-// // //           return null;
-// // //         },
-// // //       ),
-// // //     );
-// // //   }
-// // // }
-// // //
-// // //
-// // //
+// //

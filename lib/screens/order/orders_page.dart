@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
 import '../../controller/UserController.dart';
 
 class OrderScreen extends StatelessWidget {
@@ -9,7 +11,8 @@ class OrderScreen extends StatelessWidget {
 
   Future<List<dynamic>> fetchOrders() async {
     final userId = userController.userId.value;
-    final String url = 'https://namami-infotech.com/EvaraBackend/src/order/get_orders.php?user_id=$userId';
+    final String url =
+        'https://namami-infotech.com/EvaraBackend/src/order/get_orders.php?user_id=$userId';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -29,15 +32,51 @@ class OrderScreen extends StatelessWidget {
     }
   }
 
+  // Method to display the POD image or a popup message
+  void _showPOD(BuildContext context, String? pod) {
+    if (pod != null && pod.startsWith('data:image')) {
+      // Extracting the base64 image from the POD string
+      final base64Image = pod.split(',')[1];
+      final imageBytes = base64Decode(base64Image);
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => Scaffold(
+              appBar: AppBar(title: const Text("POD Image")),
+              body: Center(
+                child: Image.memory(imageBytes),
+              ),
+            ),
+          ));
+    } else {
+      // Show a popup if POD is not available
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("POD Not Available"),
+          content:
+              const Text("Proof of Delivery is not available for this order."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
   Widget buildOrderCard(Map<String, dynamic> order, BuildContext context) {
-    // Convert status to lowercase for consistent comparison
     String status = order['status'].toString().toUpperCase();
+    String? invoiceUrl = order['invoice_url'];
 
     return Card(
       elevation: 4,
       child: ExpansionTile(
         tilePadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        childrenPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+        childrenPadding:
+            const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -45,18 +84,89 @@ class OrderScreen extends StatelessWidget {
               'Order ID: ${order['orderId']}',
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
-            Chip(
-              label: Text(
-                order['status'].toString().toUpperCase(), // Display original status text
-                style: const TextStyle(color: Colors.white),
-              ),
-              backgroundColor: status == 'REJECTED'
-                  ? Colors.red
-                  : status == 'ACCEPTED'
-                  ? Colors.green
-                  : status == 'DELIVERED'
-                  ? Colors.teal
-                  : Colors.orange,
+            Row(
+              children: [
+                if (invoiceUrl != null && invoiceUrl.isNotEmpty)
+                  TextButton(
+                    onPressed: () async {
+                      FileDownloader.downloadFile(
+                        url: invoiceUrl,
+                        onDownloadCompleted: (path) {
+                          Get.snackbar(
+                            'Download Complete',
+                            'Invoice downloaded at $path',
+                            snackPosition: SnackPosition.TOP,
+                            backgroundColor: Colors.orangeAccent,
+                            colorText: Colors.black,
+                            margin: const EdgeInsets.all(16.0),
+                            borderRadius: 8.0,
+                            isDismissible: true,
+                            duration: const Duration(seconds: 1),
+                            icon: const Icon(
+                              Icons
+                                  .save_alt_outlined, // You can choose any appropriate icon
+                              color: Colors.green,
+                            ),
+                          );
+                        },
+                        onDownloadError: (error) {
+                          Get.snackbar(
+                            'Download Failed',
+                            'Unable to download invoice',
+                            snackPosition: SnackPosition.TOP,
+                            backgroundColor: Colors.orangeAccent,
+                            colorText: Colors.black,
+                            margin: const EdgeInsets.all(16.0),
+                            borderRadius: 8.0,
+                            isDismissible: true,
+                            duration: const Duration(seconds: 1),
+                            icon: const Icon(
+                              Icons
+                                  .error, // You can choose any appropriate icon
+                              color: Colors.white,
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    child: ShaderMask(
+                      shaderCallback: (Rect bounds) {
+                        return LinearGradient(
+                          colors: [
+                            Colors.black,
+                            Colors.orangeAccent,
+                          ], // Customize your gradient colors
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ).createShader(bounds);
+                      },
+                      child: Text(
+                        'Invoice',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    // child: const Text(
+                    //   'Invoice',
+                    //   style: TextStyle(color: Colors.blue),
+                    // ),
+                  ),
+                Chip(
+                  label: Text(
+                    status,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: status == 'REJECTED'
+                      ? Colors.red
+                      : status == 'ACCEPTED'
+                          ? Colors.green
+                          : status == 'DELIVERED'
+                              ? Colors.teal
+                              : Colors.orange,
+                ),
+              ],
             ),
           ],
         ),
@@ -68,7 +178,8 @@ class OrderScreen extends StatelessWidget {
               const SizedBox(width: 5),
               Text(
                 '${order['total_amount']}',
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               ),
               const Spacer(),
               const Icon(Icons.date_range, color: Colors.blue, size: 18),
@@ -81,7 +192,7 @@ class OrderScreen extends StatelessWidget {
           ),
         ),
         children: [
-          const Divider(thickness: 3.0,color: Colors.teal),
+          const Divider(thickness: 3.0, color: Colors.teal),
           Row(
             children: [
               const Icon(Icons.delivery_dining, color: Colors.purple, size: 18),
@@ -102,7 +213,6 @@ class OrderScreen extends StatelessWidget {
             padding: EdgeInsets.symmetric(vertical: 4.0),
             child: Row(
               children: [
-                // Header for Product Name
                 Expanded(
                   flex: 5,
                   child: Text(
@@ -115,8 +225,6 @@ class OrderScreen extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 10),
-
-                // Header for Buy Qty
                 Expanded(
                   flex: 2,
                   child: Text(
@@ -130,7 +238,6 @@ class OrderScreen extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 10),
-                // Header for Offer Qty
                 Expanded(
                   flex: 2,
                   child: Text(
@@ -166,43 +273,36 @@ class OrderScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
                 child: Row(
                   children: [
-                    // Expanded section for product name
                     Expanded(
-                      flex: 5, // Flex ratio to occupy half of the space
+                      flex: 5,
                       child: Text(
                         '${product['product_name']}',
                         style: const TextStyle(fontSize: 14),
-                        overflow: TextOverflow.ellipsis, // Handle long product names gracefully
-                        maxLines: 5, // Limit to 2 lines if product name is too long
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 5,
                       ),
                     ),
-                    const SizedBox(width: 10), // Spacing between the product name and quantities
-
-                    // Section for buy_quantity
+                    const SizedBox(width: 10),
                     Expanded(
-                      flex: 2, // Flex ratio for buy_quantity
+                      flex: 2,
                       child: Text(
                         '${product['buy_quantity']}',
                         style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    const SizedBox(width: 5), // Spacing between the quantities
-
-                    // Section for offer_quantity
+                    const SizedBox(width: 5),
                     Expanded(
-                      flex: 2, // Flex ratio for offer_quantity
+                      flex: 2,
                       child: Text(
                         '${product['offer_quantity']}',
                         style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    const SizedBox(width: 5), // Spacing between the quantities
-
-                    // Section for offer_quantity
+                    const SizedBox(width: 5),
                     Expanded(
-                      flex: 2, // Flex ratio for offer_quantity
+                      flex: 2,
                       child: Text(
                         '${product['net_quantity']}',
                         style: TextStyle(fontSize: 14, color: Colors.grey[600]),
@@ -214,19 +314,33 @@ class OrderScreen extends StatelessWidget {
               );
             }),
           ),
-
-          const Divider(thickness: 3.0,color: Colors.teal),
+          const Divider(thickness: 3.0, color: Colors.teal),
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Remark: ${order['remark'] ?? 'None'}',
-                style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+              Expanded(
+                flex: 7,
+                child: Text(
+                  'Remark: ${order['remark'] ?? 'None'}',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[900]),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 5,
+                ),
               ),
-              Text(
-                'POD: ${order['pod'] ?? 'Not Available'}',
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              Expanded(
+                flex: 3,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => _showPOD(context, order['pod']),
+                    child: const Text(
+                      'POD',
+                      style: TextStyle(
+                          color: Colors.blue, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -259,7 +373,8 @@ class OrderScreen extends StatelessWidget {
                     return ListView.builder(
                       itemCount: orders.length,
                       itemBuilder: (context, index) {
-                        return buildOrderCard(orders[index], context);
+                        final order = orders[index];
+                        return buildOrderCard(order, context);
                       },
                     );
                   }
@@ -272,9 +387,6 @@ class OrderScreen extends StatelessWidget {
     );
   }
 }
-
-
-
 
 // import 'dart:convert';
 // import 'package:flutter/material.dart';
@@ -308,7 +420,6 @@ class OrderScreen extends StatelessWidget {
 //   }
 //
 //   Widget buildOrderCard(Map<String, dynamic> order, BuildContext context) {
-//     // Convert status to lowercase for consistent comparison
 //     String status = order['status'].toString().toUpperCase();
 //
 //     return Card(
@@ -376,8 +487,6 @@ class OrderScreen extends StatelessWidget {
 //             style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
 //           ),
 //           const SizedBox(height: 5),
-//
-// // Header Row for "Product Name", "Buy Qty", and "Offer Qty"
 //           const Padding(
 //             padding: EdgeInsets.symmetric(vertical: 4.0),
 //             child: Row(
@@ -439,8 +548,6 @@ class OrderScreen extends StatelessWidget {
 //               ],
 //             ),
 //           ),
-//
-// // Product List with Name, Buy Qty, and Offer Qty
 //           Column(
 //             children: List.generate(order['products'].length, (index) {
 //               final product = order['products'][index];
@@ -497,51 +604,29 @@ class OrderScreen extends StatelessWidget {
 //             }),
 //           ),
 //
-//           // Text(
-//           //   'Products:',
-//           //   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-//           // ),
-//           // SizedBox(height: 5),
-//           // Column(
-//           //   children: List.generate(order['products'].length, (index) {
-//           //     final product = order['products'][index];
-//           //     return Padding(
-//           //       padding: const EdgeInsets.symmetric(vertical: 4.0),
-//           //       child: Row(
-//           //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//           //         children: [
-//           //           Expanded(
-//           //             child: Text(
-//           //               '${product['product_name']}',
-//           //               style: TextStyle(fontSize: 14),
-//           //             ),
-//           //           ),
-//           //           Text(
-//           //             '${product['buy_quantity']}',
-//           //             style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-//           //           ),
-//           //           SizedBox(width: 10,),
-//           //           Text(
-//           //             '${product['offer_quantity']}',
-//           //             style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-//           //           ),
-//           //         ],
-//           //       ),
-//           //     );
-//           //   }),
-//           // ),
 //           const Divider(thickness: 3.0,color: Colors.teal),
 //           const SizedBox(height: 10),
 //           Row(
 //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //             children: [
-//               Text(
-//                 'Remark: ${order['remark'] ?? 'None'}',
-//                 style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+//               Expanded(
+//                 flex: 7,
+//                 child: Text(
+//                   'Remark: ${order['remark'] ?? 'None'}',
+//                   style: TextStyle(fontSize: 14, color: Colors.grey[900]),
+//                   overflow: TextOverflow.ellipsis, // Handle long product names gracefully
+//                   maxLines: 5,
+//                 ),
 //               ),
-//               Text(
-//                 'POD: ${order['pod'] ?? 'Not Available'}',
-//                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+//               Expanded(
+//                 flex: 3,
+//                 child: Align(
+//                   alignment: Alignment.centerRight,
+//                   child: Text(
+//                     'POD: ${order['pod']}',
+//                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+//                   ),
+//                 ),
 //               ),
 //             ],
 //           ),
@@ -550,116 +635,6 @@ class OrderScreen extends StatelessWidget {
 //       ),
 //     );
 //   }
-//
-//   // Widget buildOrderCard(Map<String, dynamic> order, BuildContext context) {
-//   //   return Card(
-//   //     elevation: 4,
-//   //     child: ExpansionTile(
-//   //       tilePadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-//   //       childrenPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-//   //       title: Row(
-//   //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//   //         children: [
-//   //           Text(
-//   //             'Order ID: ${order['orderId']}',
-//   //             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-//   //           ),
-//   //           Chip(
-//   //             label: Text(
-//   //               order['status'],
-//   //               style: TextStyle(color: Colors.white),
-//   //             ),
-//   //             backgroundColor: order['status'] == 'rejected'
-//   //                 ? Colors.red
-//   //                 : order['status'] == 'Accepted'
-//   //                 ? Colors.green
-//   //                 : order['status'] == 'Delivered'
-//   //                 ? Colors.teal
-//   //                 : Colors.orange,
-//   //           ),
-//   //         ],
-//   //       ),
-//   //       subtitle: Padding(
-//   //         padding: const EdgeInsets.only(top: 8.0),
-//   //         child: Row(
-//   //           children: [
-//   //             Icon(Icons.currency_rupee, color: Colors.green, size: 18),
-//   //             SizedBox(width: 5),
-//   //             Text(
-//   //               '${order['total_amount']}',
-//   //               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-//   //             ),
-//   //             Spacer(),
-//   //             Icon(Icons.date_range, color: Colors.blue, size: 18),
-//   //             SizedBox(width: 5),
-//   //             Text(
-//   //               '${order['order_date']}',
-//   //               style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-//   //             ),
-//   //           ],
-//   //         ),
-//   //       ),
-//   //       children: [
-//   //         Divider(thickness: 3.0,color: Colors.teal),
-//   //         Row(
-//   //           children: [
-//   //             Icon(Icons.delivery_dining, color: Colors.purple, size: 18),
-//   //             SizedBox(width: 5),
-//   //             Text(
-//   //               'Reach by: ${order['reachby_date'] ?? 'Not Available'}',
-//   //               style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-//   //             ),
-//   //           ],
-//   //         ),
-//   //         SizedBox(height: 8),
-//   //         Text(
-//   //           'Products:',
-//   //           style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-//   //         ),
-//   //         SizedBox(height: 5),
-//   //         Column(
-//   //           children: List.generate(order['products'].length, (index) {
-//   //             final product = order['products'][index];
-//   //             return Padding(
-//   //               padding: const EdgeInsets.symmetric(vertical: 4.0),
-//   //               child: Row(
-//   //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//   //                 children: [
-//   //                   Expanded(
-//   //                     child: Text(
-//   //                       'Product ID: ${product['product_id']}',
-//   //                       style: TextStyle(fontSize: 14),
-//   //                     ),
-//   //                   ),
-//   //                   Text(
-//   //                     'Qty: ${product['net_quantity']}',
-//   //                     style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-//   //                   ),
-//   //                 ],
-//   //               ),
-//   //             );
-//   //           }),
-//   //         ),
-//   //         Divider(thickness: 3.0,color: Colors.teal),
-//   //         SizedBox(height: 10),
-//   //         Row(
-//   //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//   //           children: [
-//   //             Text(
-//   //               'Remark: ${order['remark'] ?? 'None'}',
-//   //               style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-//   //             ),
-//   //             Text(
-//   //               'POD: ${order['pod'] ?? 'Not Available'}',
-//   //               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-//   //             ),
-//   //           ],
-//   //         ),
-//   //         SizedBox(height: 10),
-//   //       ],
-//   //     ),
-//   //   );
-//   // }
 //
 //   @override
 //   Widget build(BuildContext context) {
@@ -697,5 +672,6 @@ class OrderScreen extends StatelessWidget {
 //     );
 //   }
 // }
+//
 //
 //
