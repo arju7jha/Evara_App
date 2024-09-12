@@ -40,168 +40,164 @@
 26    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 26-->C:\Users\arjuk\StudioProjects\Evara_App\android\app\src\main\AndroidManifest.xml:14:5-81
 26-->C:\Users\arjuk\StudioProjects\Evara_App\android\app\src\main\AndroidManifest.xml:14:22-78
-27    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
-27-->C:\Users\arjuk\StudioProjects\Evara_App\android\app\src\main\AndroidManifest.xml:15:5-82
-27-->C:\Users\arjuk\StudioProjects\Evara_App\android\app\src\main\AndroidManifest.xml:15:22-79
-28
-29    <queries>
-29-->[:file_picker] C:\Users\arjuk\StudioProjects\Evara_App\build\file_picker\intermediates\merged_manifest\debug\AndroidManifest.xml:13:5-19:15
-30        <intent>
-30-->[:file_picker] C:\Users\arjuk\StudioProjects\Evara_App\build\file_picker\intermediates\merged_manifest\debug\AndroidManifest.xml:14:9-18:18
-31            <action android:name="android.intent.action.GET_CONTENT" />
-31-->[:file_picker] C:\Users\arjuk\StudioProjects\Evara_App\build\file_picker\intermediates\merged_manifest\debug\AndroidManifest.xml:15:13-72
-31-->[:file_picker] C:\Users\arjuk\StudioProjects\Evara_App\build\file_picker\intermediates\merged_manifest\debug\AndroidManifest.xml:15:21-69
-32
-33            <data android:mimeType="*/*" />
-33-->[:file_picker] C:\Users\arjuk\StudioProjects\Evara_App\build\file_picker\intermediates\merged_manifest\debug\AndroidManifest.xml:17:13-44
-33-->[:file_picker] C:\Users\arjuk\StudioProjects\Evara_App\build\file_picker\intermediates\merged_manifest\debug\AndroidManifest.xml:17:19-41
-34        </intent>
-35    </queries>
-36
-37    <permission
-37-->[androidx.core:core:1.10.1] C:\Users\arjuk\.gradle\caches\transforms-3\c4988ff80110f75080a936fc6f044848\transformed\core-1.10.1\AndroidManifest.xml:22:5-24:47
-38        android:name="com.example.evara.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-38-->[androidx.core:core:1.10.1] C:\Users\arjuk\.gradle\caches\transforms-3\c4988ff80110f75080a936fc6f044848\transformed\core-1.10.1\AndroidManifest.xml:23:9-81
-39        android:protectionLevel="signature" />
-39-->[androidx.core:core:1.10.1] C:\Users\arjuk\.gradle\caches\transforms-3\c4988ff80110f75080a936fc6f044848\transformed\core-1.10.1\AndroidManifest.xml:24:9-44
-40
-41    <uses-permission android:name="com.example.evara.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
-41-->[androidx.core:core:1.10.1] C:\Users\arjuk\.gradle\caches\transforms-3\c4988ff80110f75080a936fc6f044848\transformed\core-1.10.1\AndroidManifest.xml:26:5-97
-41-->[androidx.core:core:1.10.1] C:\Users\arjuk\.gradle\caches\transforms-3\c4988ff80110f75080a936fc6f044848\transformed\core-1.10.1\AndroidManifest.xml:26:22-94
-42
-43    <application
-44        android:name="android.app.Application"
-45        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-45-->[androidx.core:core:1.10.1] C:\Users\arjuk\.gradle\caches\transforms-3\c4988ff80110f75080a936fc6f044848\transformed\core-1.10.1\AndroidManifest.xml:28:18-86
-46        android:debuggable="true"
-47        android:icon="@drawable/img"
-48        android:label="Evara" >
-49        <activity
-50            android:name="com.example.evara.MainActivity"
-51            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-52            android:exported="true"
-53            android:hardwareAccelerated="true"
-54            android:launchMode="singleTop"
-55            android:theme="@style/LaunchTheme"
-56            android:windowSoftInputMode="adjustResize" >
-57
-58            <!--
-59                 Specifies an Android theme to apply to this Activity as soon as
-60                 the Android process has started. This theme is visible to the user
-61                 while the Flutter UI initializes. After that, this theme continues
-62                 to determine the Window background behind the Flutter UI.
-63            -->
-64            <meta-data
-65                android:name="io.flutter.embedding.android.NormalTheme"
-66                android:resource="@style/NormalTheme" />
-67
-68            <intent-filter>
-69                <action android:name="android.intent.action.MAIN" />
-70
-71                <category android:name="android.intent.category.LAUNCHER" />
-72            </intent-filter>
-73        </activity>
-74        <!--
-75             Don't delete the meta-data below.
-76             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java
-77        -->
-78        <meta-data
-79            android:name="flutterEmbedding"
-80            android:value="2" />
-81
-82        <provider
-82-->[:image_picker_android] C:\Users\arjuk\StudioProjects\Evara_App\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:10:9-18:20
-83            android:name="io.flutter.plugins.imagepicker.ImagePickerFileProvider"
-83-->[:image_picker_android] C:\Users\arjuk\StudioProjects\Evara_App\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:11:13-82
-84            android:authorities="com.example.evara.flutter.image_provider"
-84-->[:image_picker_android] C:\Users\arjuk\StudioProjects\Evara_App\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:12:13-74
-85            android:exported="false"
-85-->[:image_picker_android] C:\Users\arjuk\StudioProjects\Evara_App\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:13:13-37
-86            android:grantUriPermissions="true" >
-86-->[:image_picker_android] C:\Users\arjuk\StudioProjects\Evara_App\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:14:13-47
-87            <meta-data
-87-->[:image_picker_android] C:\Users\arjuk\StudioProjects\Evara_App\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:15:13-17:75
-88                android:name="android.support.FILE_PROVIDER_PATHS"
-88-->[:image_picker_android] C:\Users\arjuk\StudioProjects\Evara_App\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:16:17-67
-89                android:resource="@xml/flutter_image_picker_file_paths" />
-89-->[:image_picker_android] C:\Users\arjuk\StudioProjects\Evara_App\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:17:17-72
-90        </provider>
-91
-92        <activity
-92-->[:url_launcher_android] C:\Users\arjuk\StudioProjects\Evara_App\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:10:9-13:74
-93            android:name="io.flutter.plugins.urllauncher.WebViewActivity"
-93-->[:url_launcher_android] C:\Users\arjuk\StudioProjects\Evara_App\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:11:13-74
-94            android:exported="false"
-94-->[:url_launcher_android] C:\Users\arjuk\StudioProjects\Evara_App\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:12:13-37
-95            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
-95-->[:url_launcher_android] C:\Users\arjuk\StudioProjects\Evara_App\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:13:13-71
-96
-97        <uses-library
-97-->[androidx.window:window:1.0.0-beta04] C:\Users\arjuk\.gradle\caches\transforms-3\25cee5f028ac2a6b79fd6278ff5b59e2\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:25:9-27:40
-98            android:name="androidx.window.extensions"
-98-->[androidx.window:window:1.0.0-beta04] C:\Users\arjuk\.gradle\caches\transforms-3\25cee5f028ac2a6b79fd6278ff5b59e2\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:26:13-54
-99            android:required="false" />
-99-->[androidx.window:window:1.0.0-beta04] C:\Users\arjuk\.gradle\caches\transforms-3\25cee5f028ac2a6b79fd6278ff5b59e2\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:27:13-37
-100        <uses-library
-100-->[androidx.window:window:1.0.0-beta04] C:\Users\arjuk\.gradle\caches\transforms-3\25cee5f028ac2a6b79fd6278ff5b59e2\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:28:9-30:40
-101            android:name="androidx.window.sidecar"
-101-->[androidx.window:window:1.0.0-beta04] C:\Users\arjuk\.gradle\caches\transforms-3\25cee5f028ac2a6b79fd6278ff5b59e2\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:29:13-51
-102            android:required="false" />
-102-->[androidx.window:window:1.0.0-beta04] C:\Users\arjuk\.gradle\caches\transforms-3\25cee5f028ac2a6b79fd6278ff5b59e2\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:30:13-37
-103
-104        <provider
-104-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:24:9-32:20
-105            android:name="androidx.startup.InitializationProvider"
-105-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:25:13-67
-106            android:authorities="com.example.evara.androidx-startup"
-106-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:26:13-68
-107            android:exported="false" >
-107-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:27:13-37
-108            <meta-data
-108-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
-109                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-109-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
-110                android:value="androidx.startup" />
-110-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
-111        </provider>
-112
-113        <receiver
-113-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
-114            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-114-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
-115            android:directBootAware="false"
-115-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
-116            android:enabled="true"
-116-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
-117            android:exported="true"
-117-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
-118            android:permission="android.permission.DUMP" >
-118-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
-119            <intent-filter>
-119-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
-120                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-120-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
-120-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
-121            </intent-filter>
-122            <intent-filter>
-122-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
-123                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-123-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
-123-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
-124            </intent-filter>
-125            <intent-filter>
-125-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
-126                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-126-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
-126-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
-127            </intent-filter>
-128            <intent-filter>
-128-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
-129                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-129-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
-129-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
-130            </intent-filter>
-131        </receiver>
-132    </application>
-133
-134</manifest>
+27
+28    <queries>
+28-->[:file_picker] C:\Users\arjuk\StudioProjects\Evara_App\build\file_picker\intermediates\merged_manifest\debug\AndroidManifest.xml:13:5-19:15
+29        <intent>
+29-->[:file_picker] C:\Users\arjuk\StudioProjects\Evara_App\build\file_picker\intermediates\merged_manifest\debug\AndroidManifest.xml:14:9-18:18
+30            <action android:name="android.intent.action.GET_CONTENT" />
+30-->[:file_picker] C:\Users\arjuk\StudioProjects\Evara_App\build\file_picker\intermediates\merged_manifest\debug\AndroidManifest.xml:15:13-72
+30-->[:file_picker] C:\Users\arjuk\StudioProjects\Evara_App\build\file_picker\intermediates\merged_manifest\debug\AndroidManifest.xml:15:21-69
+31
+32            <data android:mimeType="*/*" />
+32-->[:file_picker] C:\Users\arjuk\StudioProjects\Evara_App\build\file_picker\intermediates\merged_manifest\debug\AndroidManifest.xml:17:13-44
+32-->[:file_picker] C:\Users\arjuk\StudioProjects\Evara_App\build\file_picker\intermediates\merged_manifest\debug\AndroidManifest.xml:17:19-41
+33        </intent>
+34    </queries>
+35
+36    <permission
+36-->[androidx.core:core:1.10.1] C:\Users\arjuk\.gradle\caches\transforms-3\c4988ff80110f75080a936fc6f044848\transformed\core-1.10.1\AndroidManifest.xml:22:5-24:47
+37        android:name="com.example.evara.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+37-->[androidx.core:core:1.10.1] C:\Users\arjuk\.gradle\caches\transforms-3\c4988ff80110f75080a936fc6f044848\transformed\core-1.10.1\AndroidManifest.xml:23:9-81
+38        android:protectionLevel="signature" />
+38-->[androidx.core:core:1.10.1] C:\Users\arjuk\.gradle\caches\transforms-3\c4988ff80110f75080a936fc6f044848\transformed\core-1.10.1\AndroidManifest.xml:24:9-44
+39
+40    <uses-permission android:name="com.example.evara.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" /> <!-- <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" /> -->
+40-->[androidx.core:core:1.10.1] C:\Users\arjuk\.gradle\caches\transforms-3\c4988ff80110f75080a936fc6f044848\transformed\core-1.10.1\AndroidManifest.xml:26:5-97
+40-->[androidx.core:core:1.10.1] C:\Users\arjuk\.gradle\caches\transforms-3\c4988ff80110f75080a936fc6f044848\transformed\core-1.10.1\AndroidManifest.xml:26:22-94
+41    <application
+42        android:name="android.app.Application"
+43        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+43-->[androidx.core:core:1.10.1] C:\Users\arjuk\.gradle\caches\transforms-3\c4988ff80110f75080a936fc6f044848\transformed\core-1.10.1\AndroidManifest.xml:28:18-86
+44        android:debuggable="true"
+45        android:icon="@drawable/img"
+46        android:label="Evara" >
+47        <activity
+48            android:name="com.example.evara.MainActivity"
+49            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+50            android:exported="true"
+51            android:hardwareAccelerated="true"
+52            android:launchMode="singleTop"
+53            android:theme="@style/LaunchTheme"
+54            android:windowSoftInputMode="adjustResize" >
+55
+56            <!--
+57                 Specifies an Android theme to apply to this Activity as soon as
+58                 the Android process has started. This theme is visible to the user
+59                 while the Flutter UI initializes. After that, this theme continues
+60                 to determine the Window background behind the Flutter UI.
+61            -->
+62            <meta-data
+63                android:name="io.flutter.embedding.android.NormalTheme"
+64                android:resource="@style/NormalTheme" />
+65
+66            <intent-filter>
+67                <action android:name="android.intent.action.MAIN" />
+68
+69                <category android:name="android.intent.category.LAUNCHER" />
+70            </intent-filter>
+71        </activity>
+72        <!--
+73             Don't delete the meta-data below.
+74             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java
+75        -->
+76        <meta-data
+77            android:name="flutterEmbedding"
+78            android:value="2" />
+79
+80        <provider
+80-->[:image_picker_android] C:\Users\arjuk\StudioProjects\Evara_App\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:10:9-18:20
+81            android:name="io.flutter.plugins.imagepicker.ImagePickerFileProvider"
+81-->[:image_picker_android] C:\Users\arjuk\StudioProjects\Evara_App\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:11:13-82
+82            android:authorities="com.example.evara.flutter.image_provider"
+82-->[:image_picker_android] C:\Users\arjuk\StudioProjects\Evara_App\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:12:13-74
+83            android:exported="false"
+83-->[:image_picker_android] C:\Users\arjuk\StudioProjects\Evara_App\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:13:13-37
+84            android:grantUriPermissions="true" >
+84-->[:image_picker_android] C:\Users\arjuk\StudioProjects\Evara_App\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:14:13-47
+85            <meta-data
+85-->[:image_picker_android] C:\Users\arjuk\StudioProjects\Evara_App\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:15:13-17:75
+86                android:name="android.support.FILE_PROVIDER_PATHS"
+86-->[:image_picker_android] C:\Users\arjuk\StudioProjects\Evara_App\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:16:17-67
+87                android:resource="@xml/flutter_image_picker_file_paths" />
+87-->[:image_picker_android] C:\Users\arjuk\StudioProjects\Evara_App\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:17:17-72
+88        </provider>
+89
+90        <activity
+90-->[:url_launcher_android] C:\Users\arjuk\StudioProjects\Evara_App\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:10:9-13:74
+91            android:name="io.flutter.plugins.urllauncher.WebViewActivity"
+91-->[:url_launcher_android] C:\Users\arjuk\StudioProjects\Evara_App\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:11:13-74
+92            android:exported="false"
+92-->[:url_launcher_android] C:\Users\arjuk\StudioProjects\Evara_App\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:12:13-37
+93            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+93-->[:url_launcher_android] C:\Users\arjuk\StudioProjects\Evara_App\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:13:13-71
+94
+95        <uses-library
+95-->[androidx.window:window:1.0.0-beta04] C:\Users\arjuk\.gradle\caches\transforms-3\25cee5f028ac2a6b79fd6278ff5b59e2\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:25:9-27:40
+96            android:name="androidx.window.extensions"
+96-->[androidx.window:window:1.0.0-beta04] C:\Users\arjuk\.gradle\caches\transforms-3\25cee5f028ac2a6b79fd6278ff5b59e2\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:26:13-54
+97            android:required="false" />
+97-->[androidx.window:window:1.0.0-beta04] C:\Users\arjuk\.gradle\caches\transforms-3\25cee5f028ac2a6b79fd6278ff5b59e2\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:27:13-37
+98        <uses-library
+98-->[androidx.window:window:1.0.0-beta04] C:\Users\arjuk\.gradle\caches\transforms-3\25cee5f028ac2a6b79fd6278ff5b59e2\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:28:9-30:40
+99            android:name="androidx.window.sidecar"
+99-->[androidx.window:window:1.0.0-beta04] C:\Users\arjuk\.gradle\caches\transforms-3\25cee5f028ac2a6b79fd6278ff5b59e2\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:29:13-51
+100            android:required="false" />
+100-->[androidx.window:window:1.0.0-beta04] C:\Users\arjuk\.gradle\caches\transforms-3\25cee5f028ac2a6b79fd6278ff5b59e2\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:30:13-37
+101
+102        <provider
+102-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:24:9-32:20
+103            android:name="androidx.startup.InitializationProvider"
+103-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:25:13-67
+104            android:authorities="com.example.evara.androidx-startup"
+104-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:26:13-68
+105            android:exported="false" >
+105-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:27:13-37
+106            <meta-data
+106-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
+107                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+107-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
+108                android:value="androidx.startup" />
+108-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
+109        </provider>
+110
+111        <receiver
+111-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
+112            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+112-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
+113            android:directBootAware="false"
+113-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
+114            android:enabled="true"
+114-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
+115            android:exported="true"
+115-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
+116            android:permission="android.permission.DUMP" >
+116-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
+117            <intent-filter>
+117-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
+118                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+118-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
+118-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
+119            </intent-filter>
+120            <intent-filter>
+120-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
+121                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+121-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
+121-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
+122            </intent-filter>
+123            <intent-filter>
+123-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
+124                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+124-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
+124-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
+125            </intent-filter>
+126            <intent-filter>
+126-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
+127                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+127-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
+127-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\arjuk\.gradle\caches\transforms-3\635b1770925726da461e843c0a3c6641\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
+128            </intent-filter>
+129        </receiver>
+130    </application>
+131
+132</manifest>

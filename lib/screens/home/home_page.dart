@@ -1,5 +1,7 @@
+import 'package:evara/utils/urls/urlsclass.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/services.dart';
 import 'dart:convert'; // To handle JSON data
 import 'package:http/http.dart' as http; // Import the http package
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,14 +29,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    fetchProducts();
     fetchBanners();
-    fetchSellingProducts();
+    fetchTrendingOfferProducts();
+    fetchTopSellingProducts();
   }
 
-  Future<void> fetchProducts() async {
-    final url = Uri.parse(
-        'https://namami-infotech.com/EvaraBackend/src/sku/offers_sku.php');
+  Future<void> fetchTrendingOfferProducts() async {
+    final url = Uri.parse(Urlsclass.trendingOfferProductsUrl);
+    // final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/sku/offers_sku.php');
+
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -51,9 +54,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> fetchSellingProducts() async {
-    final url = Uri.parse(
-        'https://namami-infotech.com/EvaraBackend/src/sku/top_selling.php');
+  Future<void> fetchTopSellingProducts() async {
+    final url = Uri.parse(Urlsclass.topSellingProductsUrl);
+    // final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/sku/top_selling.php');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -70,28 +73,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Future<void> fetchBanners() async {
-  //   final url = Uri.parse(
-  //       'https://namami-infotech.com/EvaraBackend/src/banner/get_banner.php');
-  //   try {
-  //     final response = await http.get(url);
-  //     if (response.statusCode == 200) {
-  //       final data = json.decode(response.body);
-  //       setState(() {
-  //         banners = data['data'] ?? [];
-  //       });
-  //       print('Banners Response: ${response.body}');
-  //     } else {
-  //       print('Failed to load banners');
-  //     }
-  //   } catch (e) {
-  //     print('Error: $e');
-  //   }
-  // }
-
   Future<void> fetchBanners() async {
-    final url = Uri.parse(
-        'https://namami-infotech.com/EvaraBackend/src/banner/get_banner.php');
+    final url = Uri.parse(Urlsclass.fetchBannersUrl);
+    // final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/banner/get_banner.php');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -183,8 +167,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> fetchProductDetails(String medicineId) async {
-    final url = Uri.parse(
-        'https://namami-infotech.com/EvaraBackend/src/sku/get_sku.php?medicine_id=$medicineId');
+    final url = Uri.parse(Urlsclass.fetchProductDetailsUrl + medicineId);
+    // final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/sku/get_sku.php?medicine_id=$medicineId');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -614,30 +598,25 @@ class ProductCard extends StatelessWidget {
                                     textAlign: TextAlign.center,
                                     decoration: InputDecoration(
                                       border: OutlineInputBorder(),
-                                      contentPadding:
-                                      EdgeInsets.symmetric(
-                                          horizontal: 8),
+                                      contentPadding: EdgeInsets.symmetric(horizontal: 8),
                                     ),
-                                    controller: TextEditingController(
-                                        text: quantity.toString()),
+                                    controller: TextEditingController(text: quantity.toString()),
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly,  // Allow only digits
+                                      LengthLimitingTextInputFormatter(3),     // Limit to 3 digits
+                                    ],
                                     onSubmitted: (value) {
-                                      final newQuantity =
-                                          int.tryParse(value) ?? 0;
+                                      final newQuantity = int.tryParse(value) ?? 0;
                                       cartController.updateCartItem(
                                         medicineId,
                                         {
                                           'imagePath': imagePath,
                                           'name': name,
                                           'mrp': mrp,
-                                          'ptr': showPTR
-                                              ? ptr
-                                              : '', // Pass PTR or empty
-                                          'sellingPrice': showSP
-                                              ? sellingPrice
-                                              : '', // Pass SP or empty
+                                          'ptr': showPTR ? ptr : '', // Pass PTR or empty
+                                          'sellingPrice': showSP ? sellingPrice : '', // Pass SP or empty
                                           'companyName': companyName,
-                                          'productDetails':
-                                          productDetails,
+                                          'productDetails': productDetails,
                                           'salts': salts,
                                           'offer': offer,
                                         },
@@ -645,6 +624,43 @@ class ProductCard extends StatelessWidget {
                                       );
                                     },
                                   ),
+
+                                  // TextField(
+                                  //   keyboardType: TextInputType.number,
+                                  //   textAlign: TextAlign.center,
+                                  //   decoration: InputDecoration(
+                                  //     border: OutlineInputBorder(),
+                                  //     contentPadding:
+                                  //     EdgeInsets.symmetric(
+                                  //         horizontal: 8),
+                                  //   ),
+                                  //   controller: TextEditingController(
+                                  //       text: quantity.toString()),
+                                  //   onSubmitted: (value) {
+                                  //     final newQuantity =
+                                  //         int.tryParse(value) ?? 0;
+                                  //     cartController.updateCartItem(
+                                  //       medicineId,
+                                  //       {
+                                  //         'imagePath': imagePath,
+                                  //         'name': name,
+                                  //         'mrp': mrp,
+                                  //         'ptr': showPTR
+                                  //             ? ptr
+                                  //             : '', // Pass PTR or empty
+                                  //         'sellingPrice': showSP
+                                  //             ? sellingPrice
+                                  //             : '', // Pass SP or empty
+                                  //         'companyName': companyName,
+                                  //         'productDetails':
+                                  //         productDetails,
+                                  //         'salts': salts,
+                                  //         'offer': offer,
+                                  //       },
+                                  //       newQuantity,
+                                  //     );
+                                  //   },
+                                  // ),
                                 ),
                                 IconButton(
                                   icon: Icon(Icons.add_circle_outline),

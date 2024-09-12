@@ -30,22 +30,21 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Center(
-                  child: Container(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Image.asset(
-                        'assets/logos/evara_logo2.png', // Add your image asset path
-                        height: 200,
-                      ),
-                    ),
+            Center(
+              child: Container(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Image.asset(
+                    'assets/logos/evara_logo2.png', // Add your image asset path
+                    height: 200,
                   ),
                 ),
-              ])),
+              ),
+            ),
+          ])),
     );
   }
 }
-
 
 
 // import 'dart:async';

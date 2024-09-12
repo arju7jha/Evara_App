@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:evara/utils/urls/urlsclass.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
@@ -20,7 +21,8 @@ class _SupportPageState extends State<SupportPage> {
 
   // Function to fetch support info from the API
   Future<void> fetchSupportInfo() async {
-    const String apiUrl = 'https://namami-infotech.com/EvaraBackend/src/support/get_support.php';
+    const String apiUrl = Urlsclass.supportPageUrl;
+    // const String apiUrl = 'https://namami-infotech.com/EvaraBackend/src/support/get_support.php';
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -71,13 +73,6 @@ class _SupportPageState extends State<SupportPage> {
     return Scaffold(
       //backgroundColor: Colors.pink,
       body: Container(
-        // decoration: BoxDecoration(
-        //   gradient: LinearGradient(
-        //     colors: [Colors.teal[800]!, Colors.teal[400]!],
-        //     begin: Alignment.topCenter,
-        //     end: Alignment.bottomCenter,
-        //   ),
-        // ),
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(

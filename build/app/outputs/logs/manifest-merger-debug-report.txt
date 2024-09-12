@@ -116,10 +116,6 @@ uses-permission#android.permission.ACCESS_COARSE_LOCATION
 ADDED from C:\Users\arjuk\StudioProjects\Evara_App\android\app\src\main\AndroidManifest.xml:14:5-81
 	android:name
 		ADDED from C:\Users\arjuk\StudioProjects\Evara_App\android\app\src\main\AndroidManifest.xml:14:22-78
-uses-permission#android.permission.MANAGE_EXTERNAL_STORAGE
-ADDED from C:\Users\arjuk\StudioProjects\Evara_App\android\app\src\main\AndroidManifest.xml:15:5-82
-	android:name
-		ADDED from C:\Users\arjuk\StudioProjects\Evara_App\android\app\src\main\AndroidManifest.xml:15:22-79
 uses-sdk
 INJECTED from C:\Users\arjuk\StudioProjects\Evara_App\android\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\Users\arjuk\StudioProjects\Evara_App\android\app\src\main\AndroidManifest.xml

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../controller/UserController.dart';
 import '../../controller/cart_component/CartController.dart';
@@ -180,6 +181,10 @@ class ProductDetailsPage extends StatelessWidget {
                                       contentPadding: EdgeInsets.symmetric(horizontal: 8),
                                     ),
                                     controller: TextEditingController(text: quantity.toString()),
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly,  // Allow only digits
+                                      LengthLimitingTextInputFormatter(3),     // Limit to 3 digits
+                                    ],
                                     onSubmitted: (value) {
                                       final newQuantity = int.tryParse(value) ?? 0;
                                       cartController.updateCartItem(

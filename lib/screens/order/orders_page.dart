@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:evara/utils/urls/urlsclass.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:get/get.dart';
@@ -11,8 +12,9 @@ class OrderScreen extends StatelessWidget {
 
   Future<List<dynamic>> fetchOrders() async {
     final userId = userController.userId.value;
-    final String url =
-        'https://namami-infotech.com/EvaraBackend/src/order/get_orders.php?user_id=$userId';
+    final String url = Urlsclass.orderPageUrl + userId ;
+
+    // final String url = 'https://namami-infotech.com/EvaraBackend/src/order/get_orders.php?user_id=$userId';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -148,10 +150,6 @@ class OrderScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // child: const Text(
-                    //   'Invoice',
-                    //   style: TextStyle(color: Colors.blue),
-                    // ),
                   ),
                 Chip(
                   label: Text(
@@ -185,9 +183,13 @@ class OrderScreen extends StatelessWidget {
               const Icon(Icons.date_range, color: Colors.blue, size: 18),
               const SizedBox(width: 5),
               Text(
-                '${order['order_date']}',
+                '${order['order_date'].split(' ')[0]}',
                 style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
+              // Text(
+              //   '${order['order_date']}',
+              //   style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              // ),
             ],
           ),
         ),
@@ -333,12 +335,32 @@ class OrderScreen extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
+
                     onPressed: () => _showPOD(context, order['pod']),
-                    child: const Text(
-                      'POD',
-                      style: TextStyle(
-                          color: Colors.blue, fontWeight: FontWeight.bold),
+                    child: ShaderMask(
+                      shaderCallback: (Rect bounds) {
+                        return LinearGradient(
+                          colors: [
+                            Colors.black,
+                            Colors.orangeAccent,
+                          ], // Customize your gradient colors
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ).createShader(bounds);
+                      },
+                      child: Text(
+                        'POD',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
+                    // child: const Text(
+                    //   'POD',
+                    //   style: TextStyle(
+                    //       color: Colors.blue, fontWeight: FontWeight.bold),
+                    // ),
                   ),
                 ),
               ),

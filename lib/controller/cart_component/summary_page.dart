@@ -1,4 +1,5 @@
 import 'dart:convert'; // For encoding JSON
+import 'package:evara/utils/urls/urlsclass.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -231,7 +232,8 @@ class _CheckoutSummaryPageState extends State<CheckoutSummaryPage> {
                         print('Order Data: ${jsonEncode(orderData)}');
 
                         final response = await http.post(
-                          Uri.parse('https://namami-infotech.com/EvaraBackend/src/order/order_product.php'),
+                          Uri.parse(Urlsclass.orderSummaryPageUrl),
+                          // Uri.parse('https://namami-infotech.com/EvaraBackend/src/order/order_product.php'),
                           headers: {'Content-Type': 'application/json'},
                           body: jsonEncode(orderData),
                         );
@@ -239,6 +241,7 @@ class _CheckoutSummaryPageState extends State<CheckoutSummaryPage> {
                         if (response.statusCode == 200) {
                           Navigator.of(context).pop();
                           _showSuccessDialog(context, totalPrice, cartController);
+                          cartController.clearCart();
                         } else {
                           throw Exception('Failed to place order. Status code: ${response.statusCode}');
                         }

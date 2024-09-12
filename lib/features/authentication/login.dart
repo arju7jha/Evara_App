@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:evara/features/authentication/registration.dart';
 import 'package:evara/screens/main_page.dart';
+import 'package:evara/utils/urls/urlsclass.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
@@ -34,7 +35,8 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/auth/login.php');
+    final url = Uri.parse(Urlsclass.login);
+    // final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/auth/login.php');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:evara/utils/urls/urlsclass.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
@@ -39,8 +40,9 @@ class _SearchPageState extends State<SearchPage> {
         isLoading = true;
         errorMessage = '';
       });
+      final url = Uri.parse(Urlsclass.searchPageUrl);
+      // final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/sku/list_sku.php');
 
-      final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/sku/list_sku.php');
       try {
         final response = await http.get(url);
 
@@ -58,7 +60,7 @@ class _SearchPageState extends State<SearchPage> {
             requestSubmitted = false; // Reset request form when new search is made
 
             if (results.isEmpty) {
-              errorMessage = 'No products found for "$query".';
+              errorMessage = 'No products found for "$query" click here to raise a request !!';
             }
           });
         } else {
@@ -103,10 +105,10 @@ class _SearchPageState extends State<SearchPage> {
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.black,
         colorText: Colors.orangeAccent,
-        margin: EdgeInsets.all(16.0),
+        margin: const EdgeInsets.all(16.0),
         borderRadius: 8.0,
         isDismissible: true,
-        duration: Duration(seconds: 1),
+        duration: const Duration(seconds: 1),
       );
       return;
     }
@@ -121,10 +123,10 @@ class _SearchPageState extends State<SearchPage> {
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.black,
         colorText: Colors.orangeAccent,
-        margin: EdgeInsets.all(16.0),
+        margin: const EdgeInsets.all(16.0),
         borderRadius: 8.0,
         isDismissible: true,
-        duration: Duration(seconds: 1),
+        duration: const Duration(seconds: 1),
       );
       return;
     }
@@ -152,31 +154,67 @@ class _SearchPageState extends State<SearchPage> {
         });
 
         Get.snackbar('Success', 'Product request submitted successfully!',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.teal,
-            colorText: Colors.black,
-            margin: EdgeInsets.all(16.0),
-            borderRadius: 8.0,
-            isDismissible: true,
-            duration: Duration(seconds: 1),
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.teal,
+          colorText: Colors.black,
+          margin: const EdgeInsets.all(16.0),
+          borderRadius: 8.0,
+          isDismissible: true,
+          duration: const Duration(seconds: 1),
         );
         productNameController.clear();
         companyNameController.clear();
         remarksController.clear();
       } else {
         Get.snackbar('Error', 'Failed to submit the request. Please try again later.',
-            snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.black,
           colorText: Colors.orangeAccent,
-          margin: EdgeInsets.all(16.0),
+          margin: const EdgeInsets.all(16.0),
           borderRadius: 8.0,
           isDismissible: true,
-          duration: Duration(seconds: 1),
+          duration: const Duration(seconds: 1),
         );
       }
     } catch (e) {
       Get.snackbar('Error', 'An error occurred: $e', snackPosition: SnackPosition.BOTTOM);
     }
+  }
+
+  void showRequestProductDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: const Text('Request Product'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildTextField(productNameController, 'Product Name'),
+                const SizedBox(height: 10),
+                _buildTextField(companyNameController, 'Company Name'),
+                const SizedBox(height: 10),
+                _buildTextField(remarksController, 'Remarks (Optional)'),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: submitProductRequest,
+              child: const Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -197,7 +235,7 @@ class _SearchPageState extends State<SearchPage> {
         title: Row(
           children: [
             IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.black, size: 30),
+              icon: const Icon(Icons.arrow_back, color: Colors.black, size: 30),
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -215,7 +253,7 @@ class _SearchPageState extends State<SearchPage> {
                   focusNode: searchFocusNode,
                   decoration: InputDecoration(
                     hintText: 'Search products',
-                    hintStyle: TextStyle(color: Colors.black),
+                    hintStyle: const TextStyle(color: Colors.black),
                     border: InputBorder.none,
                     prefixIcon: Icon(Icons.search, color: Colors.orangeAccent[700]),
                   ),
@@ -231,124 +269,38 @@ class _SearchPageState extends State<SearchPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             if (isLoading)
-              Center(child: CircularProgressIndicator()),
-            if (!isLoading && errorMessage.isNotEmpty)
-              Column(
-                children: [
-                  Center(
-                    child: Text(
-                      errorMessage,
-                      style: TextStyle(color: Colors.orange, fontSize: 16),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  if (!requestSubmitted)
-                    Card(
-                      elevation: 8,
-                      shadowColor: Colors.grey.withOpacity(0.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
+              const Center(child: CircularProgressIndicator()),
+            if (!isLoading && searchResults.isEmpty && errorMessage.isNotEmpty)
+              SingleChildScrollView(
+                child: Column(
+                  children: [
+                    // Display the error message as a clickable button
+                    TextButton(
+                      onPressed: showRequestProductDialog,
+                      child: Text(
+                        errorMessage,
+                        style: const TextStyle(color: Colors.pink, fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Request Product',
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  //color: Colors.orangeAccent[700]
-                                ),
-                            ),
-                            SizedBox(height: 10),
-                            _buildTextField(productNameController, 'Product Name'),
-                            SizedBox(height: 10),
-                            _buildTextField(companyNameController, 'Company Name'),
-                            SizedBox(height: 10),
-                            _buildTextField(remarksController, 'Remarks (Optional)'),
-                            SizedBox(height: 20),
-                            Center(
-                              child: ElevatedButton(
-                                onPressed: submitProductRequest,
-                                style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 40, vertical: 15),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(25),
-                                  ),
-                                  //primary: Colors.orangeAccent[700], // Button color
-                                ),
-                                child: Text(
-                                  'Submit Request',
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white),
-                                ),
-                              ),
-                            ),
-                          ],
+                    ),
+                    // Display the image in the center
+                    GestureDetector(
+                      onTap: showRequestProductDialog,
+                      child: Center(
+                        child: Image.asset(
+                          'assets/images/img_7.png', // Ensure this path is correct
+                          width: 450,
+                          height: 350,
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),
-                  if (requestSubmitted)
-                    Center(
-                      child: Text(
-                        'Product request submitted successfully!',
-                        style: TextStyle(color: Colors.green, fontSize: 16),
-                      ),
-                    ),
-                ],
+                    const SizedBox(height: 20),
+
+                  ],
+                ),
               ),
-              // Column(
-              //   children: [
-              //     Center(
-              //       child: Text(
-              //         errorMessage,
-              //         style: TextStyle(color: Colors.red, fontSize: 16),
-              //       ),
-              //     ),
-              //     SizedBox(height: 20),
-              //     if (!requestSubmitted)
-              //       Column(
-              //         crossAxisAlignment: CrossAxisAlignment.start,
-              //         children: [
-              //           Text(
-              //             'Request Product',
-              //             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              //           ),
-              //           TextField(
-              //             controller: productNameController,
-              //             decoration: InputDecoration(labelText: 'Product Name'),
-              //           ),
-              //           TextField(
-              //             controller: companyNameController,
-              //             decoration: InputDecoration(labelText: 'Company Name'),
-              //           ),
-              //           TextField(
-              //             controller: remarksController,
-              //             decoration: InputDecoration(labelText: 'Remarks (Optional)'),
-              //           ),
-              //           SizedBox(height: 10),
-              //           ElevatedButton(
-              //             onPressed: submitProductRequest,
-              //             child: Text('Submit Request'),
-              //           ),
-              //         ],
-              //       ),
-              //     if (requestSubmitted)
-              //       Center(
-              //         child: Text(
-              //           'Product request submitted successfully!',
-              //           style: TextStyle(color: Colors.green, fontSize: 16),
-              //         ),
-              //       ),
-              //   ],
-              // ),
             if (!isLoading && searchResults.isNotEmpty)
               Expanded(
                 child: ListView.builder(
@@ -401,7 +353,7 @@ class _SearchPageState extends State<SearchPage> {
                         ],
                       );
                     } else {
-                      return SizedBox.shrink();
+                      return const SizedBox.shrink();
                     }
                   },
                 ),
@@ -417,11 +369,11 @@ class _SearchPageState extends State<SearchPage> {
       controller: controller,
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(color: Colors.black),
+        hintStyle: const TextStyle(color: Colors.black),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(25),
         ),
-        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
       ),
     );
   }
@@ -431,6 +383,8 @@ class _SearchPageState extends State<SearchPage> {
 // import 'dart:convert';
 // import 'package:flutter/material.dart';
 // import 'package:http/http.dart' as http;
+// import 'package:get/get.dart';
+// import '../../controller/UserController.dart';
 // import '../home/home_page.dart';
 //
 // class SearchPage extends StatefulWidget {
@@ -439,11 +393,19 @@ class _SearchPageState extends State<SearchPage> {
 // }
 //
 // class _SearchPageState extends State<SearchPage> {
+//   final UserController userController = Get.find<UserController>(); // GetX UserController
+//
 //   List<dynamic> searchResults = [];
 //   TextEditingController searchController = TextEditingController();
 //   FocusNode searchFocusNode = FocusNode();
 //   bool isLoading = false;
 //   String errorMessage = '';
+//
+//   // Controllers for request product form
+//   TextEditingController productNameController = TextEditingController();
+//   TextEditingController companyNameController = TextEditingController();
+//   TextEditingController remarksController = TextEditingController();
+//   bool requestSubmitted = false; // Track submission status
 //
 //   @override
 //   void initState() {
@@ -475,6 +437,7 @@ class _SearchPageState extends State<SearchPage> {
 //           setState(() {
 //             searchResults = results;
 //             isLoading = false;
+//             requestSubmitted = false; // Reset request form when new search is made
 //
 //             if (results.isEmpty) {
 //               errorMessage = 'No products found for "$query".';
@@ -515,10 +478,96 @@ class _SearchPageState extends State<SearchPage> {
 //     }
 //   }
 //
+//   Future<void> submitProductRequest() async {
+//     // Check if the user is logged in
+//     if (!userController.isLoggedIn.value) {
+//       Get.snackbar('Please Login', 'You must be logged in to submit a product request.',
+//         snackPosition: SnackPosition.BOTTOM,
+//         backgroundColor: Colors.black,
+//         colorText: Colors.orangeAccent,
+//         margin: const EdgeInsets.all(16.0),
+//         borderRadius: 8.0,
+//         isDismissible: true,
+//         duration: const Duration(seconds: 1),
+//       );
+//       return;
+//     }
+//
+//     final productName = productNameController.text;
+//     final companyName = companyNameController.text;
+//     final remarks = remarksController.text;
+//     final userId = userController.userId.value;
+//
+//     if (productName.isEmpty || companyName.isEmpty) {
+//       Get.snackbar('Error', 'Please fill out all fields.',
+//         snackPosition: SnackPosition.BOTTOM,
+//         backgroundColor: Colors.black,
+//         colorText: Colors.orangeAccent,
+//         margin: const EdgeInsets.all(16.0),
+//         borderRadius: 8.0,
+//         isDismissible: true,
+//         duration: const Duration(seconds: 1),
+//       );
+//       return;
+//     }
+//
+//     // Prepare the request payload
+//     final requestPayload = {
+//       'product_name': productName,
+//       'company_name': companyName,
+//       'remark': remarks,
+//       'user_id': int.parse(userId),
+//     };
+//
+//     final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/sku/request_sku.php');
+//
+//     try {
+//       final response = await http.post(
+//         url,
+//         headers: {"Content-Type": "application/json"},
+//         body: jsonEncode(requestPayload),
+//       );
+//
+//       if (response.statusCode == 200) {
+//         setState(() {
+//           requestSubmitted = true;
+//         });
+//
+//         Get.snackbar('Success', 'Product request submitted successfully!',
+//             snackPosition: SnackPosition.BOTTOM,
+//             backgroundColor: Colors.teal,
+//             colorText: Colors.black,
+//             margin: const EdgeInsets.all(16.0),
+//             borderRadius: 8.0,
+//             isDismissible: true,
+//             duration: const Duration(seconds: 1),
+//         );
+//         productNameController.clear();
+//         companyNameController.clear();
+//         remarksController.clear();
+//       } else {
+//         Get.snackbar('Error', 'Failed to submit the request. Please try again later.',
+//             snackPosition: SnackPosition.BOTTOM,
+//           backgroundColor: Colors.black,
+//           colorText: Colors.orangeAccent,
+//           margin: const EdgeInsets.all(16.0),
+//           borderRadius: 8.0,
+//           isDismissible: true,
+//           duration: const Duration(seconds: 1),
+//         );
+//       }
+//     } catch (e) {
+//       Get.snackbar('Error', 'An error occurred: $e', snackPosition: SnackPosition.BOTTOM);
+//     }
+//   }
+//
 //   @override
 //   void dispose() {
 //     searchFocusNode.dispose();
 //     searchController.dispose();
+//     productNameController.dispose();
+//     companyNameController.dispose();
+//     remarksController.dispose();
 //     super.dispose();
 //   }
 //
@@ -530,7 +579,7 @@ class _SearchPageState extends State<SearchPage> {
 //         title: Row(
 //           children: [
 //             IconButton(
-//               icon: Icon(Icons.arrow_back, color: Colors.black, size: 30,),
+//               icon: const Icon(Icons.arrow_back, color: Colors.black, size: 30),
 //               onPressed: () {
 //                 Navigator.pop(context);
 //               },
@@ -548,7 +597,7 @@ class _SearchPageState extends State<SearchPage> {
 //                   focusNode: searchFocusNode,
 //                   decoration: InputDecoration(
 //                     hintText: 'Search products',
-//                     hintStyle: TextStyle(color: Colors.black),
+//                     hintStyle: const TextStyle(color: Colors.black),
 //                     border: InputBorder.none,
 //                     prefixIcon: Icon(Icons.search, color: Colors.orangeAccent[700]),
 //                   ),
@@ -564,15 +613,78 @@ class _SearchPageState extends State<SearchPage> {
 //         padding: const EdgeInsets.all(16.0),
 //         child: Column(
 //           children: [
-//             SizedBox(height: 16),
-//             if (isLoading) // Show loading indicator while fetching data
-//               Center(child: CircularProgressIndicator()),
-//             if (!isLoading && errorMessage.isNotEmpty) // Show error message if any
-//               Center(
-//                 child: Text(
-//                   errorMessage,
-//                   style: TextStyle(color: Colors.red, fontSize: 16),
-//                 ),
+//             const SizedBox(height: 16),
+//             if (isLoading)
+//               const Center(child: CircularProgressIndicator()),
+//             if (!isLoading && errorMessage.isNotEmpty)
+//               Column(
+//                 children: [
+//                   Center(
+//                     child: Text(
+//                       errorMessage,
+//                       style: const TextStyle(color: Colors.orange, fontSize: 16),
+//                     ),
+//                   ),
+//                   const SizedBox(height: 20),
+//                   if (!requestSubmitted)
+//                     Card(
+//                       elevation: 8,
+//                       shadowColor: Colors.grey.withOpacity(0.5),
+//                       shape: RoundedRectangleBorder(
+//                         borderRadius: BorderRadius.circular(15),
+//                       ),
+//                       child: Padding(
+//                         padding: const EdgeInsets.all(16.0),
+//                         child: Column(
+//                           crossAxisAlignment: CrossAxisAlignment.start,
+//                           children: [
+//                             const Text(
+//                               'Request Product',
+//                               style: TextStyle(
+//                                   fontSize: 18,
+//                                   fontWeight: FontWeight.bold,
+//                                   //color: Colors.orangeAccent[700]
+//                                 ),
+//                             ),
+//                             const SizedBox(height: 10),
+//                             _buildTextField(productNameController, 'Product Name'),
+//                             const SizedBox(height: 10),
+//                             _buildTextField(companyNameController, 'Company Name'),
+//                             const SizedBox(height: 10),
+//                             _buildTextField(remarksController, 'Remarks (Optional)'),
+//                             const SizedBox(height: 20),
+//                             Center(
+//                               child: ElevatedButton(
+//                                 onPressed: submitProductRequest,
+//                                 style: ElevatedButton.styleFrom(
+//                                   padding: const EdgeInsets.symmetric(
+//                                       horizontal: 40, vertical: 15),
+//                                   shape: RoundedRectangleBorder(
+//                                     borderRadius: BorderRadius.circular(25),
+//                                   ),
+//                                   //primary: Colors.orangeAccent[700], // Button color
+//                                 ),
+//                                 child: const Text(
+//                                   'Submit Request',
+//                                   style: TextStyle(
+//                                       fontSize: 16,
+//                                       fontWeight: FontWeight.bold,
+//                                       color: Colors.white),
+//                                 ),
+//                               ),
+//                             ),
+//                           ],
+//                         ),
+//                       ),
+//                     ),
+//                   if (requestSubmitted)
+//                     const Center(
+//                       child: Text(
+//                         'Product request submitted successfully!',
+//                         style: TextStyle(color: Colors.green, fontSize: 16),
+//                       ),
+//                     ),
+//                 ],
 //               ),
 //             if (!isLoading && searchResults.isNotEmpty)
 //               Expanded(
@@ -626,13 +738,27 @@ class _SearchPageState extends State<SearchPage> {
 //                         ],
 //                       );
 //                     } else {
-//                       return SizedBox.shrink();
+//                       return const SizedBox.shrink();
 //                     }
 //                   },
 //                 ),
 //               ),
 //           ],
 //         ),
+//       ),
+//     );
+//   }
+//
+//   Widget _buildTextField(TextEditingController controller, String hint) {
+//     return TextField(
+//       controller: controller,
+//       decoration: InputDecoration(
+//         hintText: hint,
+//         hintStyle: const TextStyle(color: Colors.black),
+//         border: OutlineInputBorder(
+//           borderRadius: BorderRadius.circular(25),
+//         ),
+//         contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
 //       ),
 //     );
 //   }

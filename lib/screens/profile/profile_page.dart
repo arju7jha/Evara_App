@@ -36,9 +36,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ? FloatingActionButton(
           onPressed: _logout,
           tooltip: 'Logout',
-          child: Icon(Icons.logout),
+          child: const Icon(Icons.logout),
         )
-            : SizedBox();
+            : const SizedBox();
       }),
     );
   }
@@ -58,24 +58,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Center(
                 child: CircleAvatar(
                   radius: 40,
-                  backgroundColor: Color(0xff25a295),
+                  backgroundColor: const Color(0xff25a295),
                   child: Text(
                     userController.userName.value.isNotEmpty
                         ? userController.userName.value[0].toUpperCase()
                         : 'U',
-                    style: TextStyle(fontSize: 24, color: Colors.white),
+                    style: const TextStyle(fontSize: 24, color: Colors.white),
                   ),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Center(
                 child: Text(
                   'Hello, ${userController.userName.value}!',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
               ),
-              SizedBox(height: 16),
-              Divider(),
+              const SizedBox(height: 16),
+              const Divider(),
 
               // Email
               _buildInfoTile(
@@ -113,19 +113,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   title: 'PAN Number',
                   subtitle: userController.panNo.value),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               Center(
                 child: ElevatedButton.icon(
                   onPressed: () {
                     // Implement edit profile functionality
                   },
-                  icon: Icon(Icons.edit, color: Colors.white),
-                  label: Text('Edit Profile'),
+                  icon: const Icon(Icons.edit, color: Colors.white),
+                  label: const Text('Edit Profile'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xffe04545),
+                    backgroundColor: const Color(0xffe04545),
                     padding:
-                    EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   ),
                 ),
               ),
@@ -139,7 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // Helper method to build ListTile with user data
   Widget _buildInfoTile({required IconData icon, required String title, required String subtitle}) {
     return ListTile(
-      leading: Icon(icon, color: Color(0xff25a295)),
+      leading: Icon(icon, color: const Color(0xff25a295)),
       title: Text(title),
       subtitle: Text(subtitle),
     );
@@ -154,23 +154,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
           size: 100,
           color: Colors.grey[400],
         ),
-        SizedBox(height: 20),
-        Text(
+        const SizedBox(height: 20),
+        const Text(
           'Welcome to Our App!',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 10),
-        Text(
+        const SizedBox(height: 10),
+        const Text(
           'Please log in to continue',
           style: TextStyle(fontSize: 16, color: Colors.grey),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         CustomButton(
           text: 'Login',
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => LoginPage()),
+              MaterialPageRoute(builder: (context) => const LoginPage()),
             );
           },
         ),
