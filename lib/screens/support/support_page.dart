@@ -21,7 +21,7 @@ class _SupportPageState extends State<SupportPage> {
 
   // Function to fetch support info from the API
   Future<void> fetchSupportInfo() async {
-    const String apiUrl = Urlsclass.supportPageUrl;
+     final apiUrl = Urlsclass.supportPageUrl;
     // const String apiUrl = 'https://namami-infotech.com/EvaraBackend/src/support/get_support.php';
 
     try {

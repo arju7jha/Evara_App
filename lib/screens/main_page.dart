@@ -22,7 +22,6 @@ class _MainPageState extends State<MainPage> {
     ProfileScreen(),
   ];
 
-
   void _onBottomNavTapped(int index) {
     setState(() {
       _currentIndex = index;
@@ -41,6 +40,8 @@ class _MainPageState extends State<MainPage> {
       ),
     );
   }
+
+
 }
 
 

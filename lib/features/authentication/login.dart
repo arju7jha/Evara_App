@@ -23,6 +23,8 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  bool _passwordVisible = false;  // New variable to track password visibility
+
   Future<void> _login() async {
     final String phoneNumber = _phoneController.text;
     final String password = _passwordController.text;
@@ -36,7 +38,6 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     final url = Uri.parse(Urlsclass.login);
-    // final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/auth/login.php');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -52,9 +53,8 @@ class _LoginPageState extends State<LoginPage> {
       print(responseData);
       if (responseData['message'] == 'Login successful') {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
-        // Save the entire response data using phone number as key
         prefs.setString(phoneNumber, jsonEncode(responseData));
-        // Update the UserController with the logged-in user's data
+
         final UserController userController = Get.find<UserController>();
         userController.isLoggedIn.value = true;
         userController.userName.value = responseData['userData']['username'];
@@ -65,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
         userController.appUrl.value = responseData['AppURL'];
         userController.mailAddress.value = responseData['userData']['mailing_address'].toString();
         userController.deliveryAddress.value = responseData['userData']['delivery_address'].toString();
-        userController.dnNo.value = responseData['userData']['dl_no'].toString();
+        userController.dlNo.value = responseData['userData']['dl_no'].toString();
         userController.dlPic.value = responseData['userData']['dl_pic'].toString();
         userController.dlExpireDate.value = responseData['userData']['dl_expire_date'].toString();
         userController.aadharNo.value = responseData['userData']['aadhar_no'].toString();
@@ -75,18 +75,14 @@ class _LoginPageState extends State<LoginPage> {
         userController.tradeLic.value = responseData['userData']['trade_lic'].toString();
         userController.panNo.value = responseData['userData']['pan_no'].toString();
 
-        // Restart the app using Phoenix
         Get.offAll(() => MainPage());
         Phoenix.rebirth(context);
-      }
-
-      else {
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(responseData['message'] ?? 'Login failed')),
         );
       }
-    }
-    else {
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Server error. Please try again later.')),
       );
@@ -105,7 +101,6 @@ class _LoginPageState extends State<LoginPage> {
     if (phoneNumber.isNotEmpty) {
       final userData = prefs.getString(phoneNumber);
       if (userData != null) {
-        // User is logged in, navigate to the MainPage
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => MainPage()),
@@ -118,9 +113,7 @@ class _LoginPageState extends State<LoginPage> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final phoneNumber = _phoneController.text;
     if (phoneNumber.isNotEmpty) {
-      // Remove user data from SharedPreferences
       prefs.remove(phoneNumber);
-      // Optionally, navigate to the login page or perform other actions
     }
   }
 
@@ -149,9 +142,8 @@ class _LoginPageState extends State<LoginPage> {
                   keyboardType: TextInputType.phone,
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(10), // Restrict to 10 characters
+                    LengthLimitingTextInputFormatter(10),
                   ],
-                  // maxLength: 10,
                   decoration: InputDecoration(
                     hintText: 'Phone Number',
                     prefixIcon: Icon(Icons.phone),
@@ -160,17 +152,26 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(height: 20),
                 TextField(
                   controller: _passwordController,
-                  obscureText: true,
+                  obscureText: !_passwordVisible,  // Toggle visibility
                   decoration: InputDecoration(
                     hintText: 'Password',
                     prefixIcon: Icon(Icons.lock),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _passwordVisible ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _passwordVisible = !_passwordVisible;  // Change the visibility state
+                        });
+                      },
+                    ),
                   ),
                 ),
                 SizedBox(height: 20),
                 CustomButton(
                   text: 'Login',
                   onPressed: _login,
-                  // Use the _login function on button press
                 ),
                 SizedBox(height: 20),
                 TextButton(
@@ -182,9 +183,6 @@ class _LoginPageState extends State<LoginPage> {
                   },
                   child: Text(
                     "Don't have an account? Register Here",
-                    style: TextStyle(
-                      //color: Color(0xff1b3156),
-                    ),
                   ),
                 ),
               ],
@@ -197,13 +195,18 @@ class _LoginPageState extends State<LoginPage> {
 }
 
 
-//
-// import 'dart:convert'; // For encoding JSON
+// import 'dart:convert';
 // import 'package:evara/features/authentication/registration.dart';
 // import 'package:evara/screens/main_page.dart';
+// import 'package:evara/utils/urls/urlsclass.dart';
 // import 'package:flutter/material.dart';
+// import 'package:flutter/services.dart';
+// import 'package:flutter_phoenix/flutter_phoenix.dart';
+// import 'package:get/get.dart';
+// import 'package:get/get_core/src/get_main.dart';
 // import 'package:http/http.dart' as http; // For making HTTP requests
 // import 'package:shared_preferences/shared_preferences.dart'; // For using SharedPreferences
+// import '../../controller/UserController.dart';
 // import 'custom_widget.dart';
 //
 // class LoginPage extends StatefulWidget {
@@ -229,7 +232,8 @@ class _LoginPageState extends State<LoginPage> {
 //       return;
 //     }
 //
-//     final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/auth/login.php');
+//     final url = Uri.parse(Urlsclass.login);
+//     // final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/auth/login.php');
 //     final response = await http.post(
 //       url,
 //       headers: {'Content-Type': 'application/json'},
@@ -242,26 +246,43 @@ class _LoginPageState extends State<LoginPage> {
 //
 //     if (response.statusCode == 200) {
 //       final responseData = jsonDecode(response.body);
-//       print(responseData); // Print the response in the console
-//
+//       print(responseData);
 //       if (responseData['message'] == 'Login successful') {
 //         final SharedPreferences prefs = await SharedPreferences.getInstance();
 //         // Save the entire response data using phone number as key
 //         prefs.setString(phoneNumber, jsonEncode(responseData));
+//         // Update the UserController with the logged-in user's data
+//         final UserController userController = Get.find<UserController>();
+//         userController.isLoggedIn.value = true;
+//         userController.userName.value = responseData['userData']['username'];
+//         userController.email.value = responseData['userData']['email'];
+//         userController.phoneNumber.value = responseData['userData']['phone_number'];
+//         userController.token.value = responseData['token'];
+//         userController.userId.value = responseData['userData']['user_id'].toString();
+//         userController.appUrl.value = responseData['AppURL'];
+//         userController.mailAddress.value = responseData['userData']['mailing_address'].toString();
+//         userController.deliveryAddress.value = responseData['userData']['delivery_address'].toString();
+//         userController.dnNo.value = responseData['userData']['dl_no'].toString();
+//         userController.dlPic.value = responseData['userData']['dl_pic'].toString();
+//         userController.dlExpireDate.value = responseData['userData']['dl_expire_date'].toString();
+//         userController.aadharNo.value = responseData['userData']['aadhar_no'].toString();
+//         userController.aadharPic.value = responseData['userData']['aadhar_pic'].toString();
+//         userController.gstNo.value = responseData['userData']['gst_no'].toString();
+//         userController.gstDoc.value = responseData['userData']['gst_doc'].toString();
+//         userController.tradeLic.value = responseData['userData']['trade_lic'].toString();
+//         userController.panNo.value = responseData['userData']['pan_no'].toString();
 //
-//         // Navigate to the MainPage
-//         Navigator.pushReplacement(
-//           context,
-//           MaterialPageRoute(builder: (context) => MainPage()),
-//         );
-//       } else {
+//         // Restart the app using Phoenix
+//         Get.offAll(() => MainPage());
+//         Phoenix.rebirth(context);
+//       }
+//
+//       else {
 //         ScaffoldMessenger.of(context).showSnackBar(
 //           SnackBar(content: Text(responseData['message'] ?? 'Login failed')),
 //         );
 //       }
 //     }
-//
-//
 //     else {
 //       ScaffoldMessenger.of(context).showSnackBar(
 //         SnackBar(content: Text('Server error. Please try again later.')),
@@ -323,6 +344,11 @@ class _LoginPageState extends State<LoginPage> {
 //                 TextField(
 //                   controller: _phoneController,
 //                   keyboardType: TextInputType.phone,
+//                   inputFormatters: [
+//                     FilteringTextInputFormatter.digitsOnly,
+//                     LengthLimitingTextInputFormatter(10), // Restrict to 10 characters
+//                   ],
+//                   // maxLength: 10,
 //                   decoration: InputDecoration(
 //                     hintText: 'Phone Number',
 //                     prefixIcon: Icon(Icons.phone),
@@ -340,7 +366,8 @@ class _LoginPageState extends State<LoginPage> {
 //                 SizedBox(height: 20),
 //                 CustomButton(
 //                   text: 'Login',
-//                   onPressed: _login, // Use the _login function on button press
+//                   onPressed: _login,
+//                   // Use the _login function on button press
 //                 ),
 //                 SizedBox(height: 20),
 //                 TextButton(
@@ -353,7 +380,7 @@ class _LoginPageState extends State<LoginPage> {
 //                   child: Text(
 //                     "Don't have an account? Register Here",
 //                     style: TextStyle(
-//                       color: Color(0xff1b3156),
+//                       //color: Color(0xff1b3156),
 //                     ),
 //                   ),
 //                 ),

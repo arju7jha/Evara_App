@@ -12,7 +12,7 @@ class UserController extends GetxController {
   var userId = ''.obs;
   var mailAddress = ''.obs;
   var deliveryAddress = ''.obs;
-  var dnNo = ''.obs;
+  var dlNo = ''.obs;
   var dlPic = ''.obs;
   var dlExpireDate = ''.obs;
   var aadharNo = ''.obs;
@@ -50,7 +50,7 @@ class UserController extends GetxController {
           appUrl.value = responseData['AppURL'] ?? 'AppURL not found';
           mailAddress.value = userDataInfo['mailing_address'] ?? 'Mailing address not found';
           deliveryAddress.value = userDataInfo['delivery_address'] ?? 'Delivery address not found';
-          dnNo.value = userDataInfo['dl_no'] ?? 'DL num not found';
+          dlNo.value = userDataInfo['dl_no'] ?? 'DL num not found';
           dlPic.value = userDataInfo['dl_pic'] ?? 'DL pic not found';
           dlExpireDate.value = userDataInfo['dl_expire_date'] ?? 'DL expire not found';
           aadharNo.value = userDataInfo['aadhar_no'] ?? 'Aadhar number not found';

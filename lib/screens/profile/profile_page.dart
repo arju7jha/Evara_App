@@ -89,7 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   subtitle: userController.phoneNumber.value),
               // Mailing Address
               _buildInfoTile(
-                  icon: Icons.mail,
+                  icon: Icons.location_on_rounded,
                   title: 'Mailing Address',
                   subtitle: userController.mailAddress.value),
               // Delivery Address
@@ -97,6 +97,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   icon: Icons.location_on,
                   title: 'Delivery Address',
                   subtitle: userController.deliveryAddress.value),
+              // DL Number
+              _buildInfoTile(
+                  icon: Icons.medical_information,
+                  title: 'DL Number ',
+                  subtitle: userController.dlNo.value),
+              // DL Expiry
+              _buildInfoTile(
+                  icon: Icons.medical_services_outlined,
+                  title: 'DL Expiry Date',
+                  subtitle: userController.dlExpireDate.value),
               // Aadhar Number
               _buildInfoTile(
                   icon: Icons.perm_identity,
@@ -182,6 +192,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     userController.logout();
   }
 }
+
+
 
 // import 'package:evara/features/authentication/login.dart';
 // import 'package:evara/screens/main_page.dart';

@@ -1,4 +1,4 @@
-#Thu Sep 12 18:24:47 IST 2024
+#Fri Sep 13 18:11:51 IST 2024
 base.0=C\:\\Users\\arjuk\\StudioProjects\\Evara_App\\build\\app\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
 base.1=C\:\\Users\\arjuk\\StudioProjects\\Evara_App\\build\\app\\intermediates\\dex\\debug\\mergeLibDexDebug\\0\\classes.dex
 base.2=C\:\\Users\\arjuk\\StudioProjects\\Evara_App\\build\\app\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex

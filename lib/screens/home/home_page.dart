@@ -35,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> fetchTrendingOfferProducts() async {
-    final url = Uri.parse(Urlsclass.trendingOfferProductsUrl);
+    final url = Uri.parse(Urlsclass.trendingOfferProductsUrl as String);
     // final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/sku/offers_sku.php');
 
     try {
@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> fetchTopSellingProducts() async {
-    final url = Uri.parse(Urlsclass.topSellingProductsUrl);
+    final url = Uri.parse(Urlsclass.topSellingProductsUrl as String);
     // final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/sku/top_selling.php');
     try {
       final response = await http.get(url);
@@ -74,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> fetchBanners() async {
-    final url = Uri.parse(Urlsclass.fetchBannersUrl);
+    final url = Uri.parse(Urlsclass.fetchBannersUrl as String);
     // final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/banner/get_banner.php');
     try {
       final response = await http.get(url);

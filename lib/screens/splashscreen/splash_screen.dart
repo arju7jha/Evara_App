@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';  // For decoding JSON
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;  // Import http package
 
+import '../../utils/urls/urlsclass.dart';
 import '../main_page.dart';
 
 class SplashScreenPage extends StatefulWidget {
@@ -11,9 +14,13 @@ class SplashScreenPage extends StatefulWidget {
 }
 
 class _SplashScreenPageState extends State<SplashScreenPage> {
+  String appUrl = '';  // Variable to store the AppURL
+
   @override
   void initState() {
     super.initState();
+    _fetchCompanyData();  // Fetch data when the widget is initialized
+
     // Delay navigation to MainPage
     Future.delayed(Duration(seconds: 1), () {
       Navigator.of(context).pushReplacement(
@@ -22,14 +29,47 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
     });
   }
 
+  Future<void> _fetchCompanyData() async {
+    final url = 'https://namami-infotech.com/Company/company.php?company=EVARA';
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        // If the server returns an OK response, parse the JSON
+        final data = json.decode(response.body);
+        print('API Response: $data');  // Print the response data
+
+        // Extract the AppURL from the response
+        if (data['success'] == true && data['accounts'] != null && data['accounts'].isNotEmpty) {
+          final appUrlFromResponse = data['accounts'][0]['AppURL'] ?? '';
+          setState(() {
+            appUrl = appUrlFromResponse;  // Store the AppURL in the variable
+          });
+          print('Extracted AppURL: $appUrl');
+
+          // Update the baseUrl in Urlsclass
+          Urlsclass.updateBaseUrl(appUrl);
+        } else {
+          print('No valid account data found.');
+        }
+      } else {
+        // If the server did not return a 200 OK response, throw an error
+        print('Failed to load data: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Handle any errors
+      print('Error fetching data: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
             Center(
               child: Container(
                 child: Padding(
@@ -41,17 +81,20 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
                 ),
               ),
             ),
-          ])),
+          ],
+        ),
+      ),
     );
   }
 }
 
 
 // import 'dart:async';
+// import 'dart:convert';  // For decoding JSON
 // import 'package:flutter/material.dart';
-// import 'package:hr_smile/features/authentication/login.dart';
-// import 'package:hr_smile/screens/main_page.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:http/http.dart' as http;  // Import http package
+//
+// import '../main_page.dart';
 //
 // class SplashScreenPage extends StatefulWidget {
 //   const SplashScreenPage({super.key});
@@ -63,54 +106,108 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
 // class _SplashScreenPageState extends State<SplashScreenPage> {
 //   @override
 //   void initState() {
-//     // TODO: implement initState
 //     super.initState();
-//     storedata();
+//     _fetchCompanyData();  // Fetch data when the widget is initialized
+//
+//     // Delay navigation to MainPage
+//     Future.delayed(Duration(seconds: 1), () {
+//       Navigator.of(context).pushReplacement(
+//         MaterialPageRoute(builder: (context) => MainPage()),
+//       );
+//     });
+//   }
+//
+//   Future<void> _fetchCompanyData() async {
+//     final url = 'https://namami-infotech.com/Company/company.php?company=EVARA';
+//     try {
+//       final response = await http.get(Uri.parse(url));
+//
+//       if (response.statusCode == 200) {
+//         // If the server returns an OK response, parse the JSON
+//         final data = json.decode(response.body);
+//         print('API Response: $data');  // Print the response data
+//       } else {
+//         // If the server did not return a 200 OK response, throw an error
+//         print('Failed to load data: ${response.statusCode}');
+//       }
+//     } catch (e) {
+//       // Handle any errors
+//       print('Error fetching data: $e');
+//     }
 //   }
 //
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
 //       body: Container(
-//           child: Column(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               crossAxisAlignment: CrossAxisAlignment.center,
-//               children: [
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           crossAxisAlignment: CrossAxisAlignment.center,
+//           children: [
 //             Center(
 //               child: Container(
 //                 child: Padding(
 //                   padding: const EdgeInsets.all(8.0),
 //                   child: Image.asset(
-//                     'assets/logos/splash_Logo.jpg', // Add your image asset path
+//                     'assets/logos/evara_logo2.png', // Add your image asset path
 //                     height: 200,
 //                   ),
 //                 ),
 //               ),
 //             ),
-//           ])),
+//           ],
+//         ),
+//       ),
 //     );
 //   }
-//
-//   void storedata() async {
-//     SharedPreferences prefs = await SharedPreferences.getInstance();
-//     var emp_id = prefs.getString("emp_id") ?? "";
-//     print("data: " + emp_id.toString());
-//     Timer(Duration(seconds: 1), () {
-//       if (emp_id != "null" && emp_id != "") {
-//         Navigator.pushReplacement(
-//           context,
-//           MaterialPageRoute(
-//             builder: (context) => MainPage(),
-//           ),
-//         );
-//       } else {
-//         Navigator.pushReplacement(
-//           context,
-//           MaterialPageRoute(
-//             builder: (context) => LoginPage(),
-//           ),
-//         );
-//       }
-//     });
-//   }
 // }
+//
+//
+//
+// // import 'dart:async';
+// // import 'package:flutter/material.dart';
+// //
+// // import '../main_page.dart';
+// //
+// // class SplashScreenPage extends StatefulWidget {
+// //   const SplashScreenPage({super.key});
+// //
+// //   @override
+// //   State<SplashScreenPage> createState() => _SplashScreenPageState();
+// // }
+// //
+// // class _SplashScreenPageState extends State<SplashScreenPage> {
+// //   @override
+// //   void initState() {
+// //     super.initState();
+// //     // Delay navigation to MainPage
+// //     Future.delayed(Duration(seconds: 1), () {
+// //       Navigator.of(context).pushReplacement(
+// //         MaterialPageRoute(builder: (context) => MainPage()),
+// //       );
+// //     });
+// //   }
+// //
+// //   @override
+// //   Widget build(BuildContext context) {
+// //     return Scaffold(
+// //       body: Container(
+// //           child: Column(
+// //               mainAxisAlignment: MainAxisAlignment.center,
+// //               crossAxisAlignment: CrossAxisAlignment.center,
+// //               children: [
+// //             Center(
+// //               child: Container(
+// //                 child: Padding(
+// //                   padding: const EdgeInsets.all(8.0),
+// //                   child: Image.asset(
+// //                     'assets/logos/evara_logo2.png', // Add your image asset path
+// //                     height: 200,
+// //                   ),
+// //                 ),
+// //               ),
+// //             ),
+// //           ])),
+// //     );
+// //   }
+// // }

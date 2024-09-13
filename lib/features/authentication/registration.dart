@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:evara/utils/urls/urlsclass.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:intl/intl.dart';
@@ -25,11 +26,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
-  final TextEditingController mailingAddressController = TextEditingController();
-  final TextEditingController deliveryAddressController = TextEditingController();
+  final TextEditingController mailingAddressController =
+      TextEditingController();
+  final TextEditingController deliveryAddressController =
+      TextEditingController();
 
   // Controllers for business information
-  final TextEditingController dnNoController = TextEditingController();
+  final TextEditingController dlNoController = TextEditingController();
   final TextEditingController dlPicNameController = TextEditingController();
   final TextEditingController dlExpireDateController = TextEditingController();
   final TextEditingController aadharNoController = TextEditingController();
@@ -50,7 +53,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
   Future<void> _registerUser() async {
     if (_formKey.currentState!.validate()) {
       final url = Uri.parse(Urlsclass.registration);
-      //final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/auth/register.php');
 
       final registrationData = {
         "username": usernameController.text,
@@ -59,9 +61,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "mailing_address": mailingAddressController.text,
         "delivery_address": deliveryAddressController.text,
         "category": selectedCategory,
-        "dn_no": selectedCategory == 'Pharma' ? dnNoController.text : '',
+        "dn_no": selectedCategory == 'Pharma' ? dlNoController.text : '',
         "dl_pic": selectedCategory == 'Pharma' ? dlPicBase64 : '',
-        "dl_expire_date": selectedCategory == 'Pharma' ? _dateFormat.format(DateTime.parse(dlExpireDateController.text)) : null,
+        "dl_expire_date": selectedCategory == 'Pharma'
+            ? _dateFormat.format(DateTime.parse(dlExpireDateController.text))
+            : null,
         "aadhar_no": aadharNoController.text,
         "aadhar_pic": aadharPicBase64,
         "gst_no": gstNoController.text,
@@ -83,32 +87,119 @@ class _RegistrationPageState extends State<RegistrationPage> {
           final responseData = jsonDecode(response.body);
 
           if (responseData['message'] == 'Dealer registered successfully.') {
+            _clearForm();  // Clear the form after successful registration
             _showSuccessDialog();
           } else {
-            _showErrorDialog(responseData['message'] ?? 'Registration failed. Please try again.');
+            _showErrorDialog(responseData['message'] ??
+                'Registration failed. Please try again.');
           }
         } else {
           _showErrorDialog(' ${response.body}');
         }
       } catch (e) {
-        _showErrorDialog('Failed to register. Please check your internet connection and try again.');
+        _showErrorDialog(
+            'Failed to register. Please check your internet connection and try again.');
       }
     }
   }
+
+// Method to clear the form fields
+  void _clearForm() {
+    usernameController.clear();
+    emailController.clear();
+    phoneController.clear();
+    mailingAddressController.clear();
+    deliveryAddressController.clear();
+    dlNoController.clear();
+    dlPicNameController.clear();
+    dlExpireDateController.clear();
+    aadharNoController.clear();
+    aadharPicNameController.clear();
+    gstNoController.clear();
+    gstDocNameController.clear();
+    tradeLicController.clear();
+    panNoController.clear();
+
+    // Clear base64-encoded images
+    dlPicBase64 = null;
+    aadharPicBase64 = null;
+    gstDocBase64 = null;
+
+    // Reset form state if necessary
+    setState(() {
+      showBusinessInfo = false;
+      selectedCategory = 'Pharma'; // Reset to default category
+    });
+  }
+
+
+  // Future<void> _registerUser() async {
+  //   if (_formKey.currentState!.validate()) {
+  //     final url = Uri.parse(Urlsclass.registration);
+  //     //final url = Uri.parse('https://namami-infotech.com/EvaraBackend/src/auth/register.php');
+  //
+  //     final registrationData = {
+  //       "username": usernameController.text,
+  //       "email": emailController.text,
+  //       "phone_number": phoneController.text,
+  //       "mailing_address": mailingAddressController.text,
+  //       "delivery_address": deliveryAddressController.text,
+  //       "category": selectedCategory,
+  //       "dn_no": selectedCategory == 'Pharma' ? dlNoController.text : '',
+  //       "dl_pic": selectedCategory == 'Pharma' ? dlPicBase64 : '',
+  //       "dl_expire_date": selectedCategory == 'Pharma'
+  //           ? _dateFormat.format(DateTime.parse(dlExpireDateController.text))
+  //           : null,
+  //       "aadhar_no": aadharNoController.text,
+  //       "aadhar_pic": aadharPicBase64,
+  //       "gst_no": gstNoController.text,
+  //       "gst_doc": gstDocBase64,
+  //       "trade_lic": tradeLicController.text,
+  //       "pan_no": panNoController.text,
+  //     };
+  //
+  //     try {
+  //       final response = await http.post(
+  //         url,
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: jsonEncode(registrationData),
+  //       );
+  //
+  //       if (response.statusCode == 201) {
+  //         final responseData = jsonDecode(response.body);
+  //
+  //         if (responseData['message'] == 'Dealer registered successfully.') {
+  //           _showSuccessDialog();
+  //         } else {
+  //           _showErrorDialog(responseData['message'] ??
+  //               'Registration failed. Please try again.');
+  //         }
+  //       } else {
+  //         _showErrorDialog(' ${response.body}');
+  //       }
+  //     } catch (e) {
+  //       _showErrorDialog(
+  //           'Failed to register. Please check your internet connection and try again.');
+  //     }
+  //   }
+  // }
 
   void _showSuccessDialog() {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Registration Successful'),
-          content: Text('You have successfully registered. You will be notified by mail after verification.'),
+          title: const Text('Registration Successful'),
+          content: const Text(
+              'You have successfully registered. You will be notified by mail after verification.'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         );
@@ -121,14 +212,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Error'),
+          title: const Text('Error'),
           content: Text(message),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         );
@@ -149,19 +240,58 @@ class _RegistrationPageState extends State<RegistrationPage> {
     }
   }
 
+  // Future<void> _pickImage({
+  //   required TextEditingController nameController,
+  //   required Function(String) onBase64Encoded,
+  // }) async {
+  //   final ImagePicker _picker = ImagePicker();
+  //   final XFile? image = await _picker.pickImage(
+  //     source: await _showImageSourceDialog(),
+  //   );
+  //
+  //   if (image != null) {
+  //     File imageFile = File(image.path);
+  //
+  //     // Compress image
+  //     final result = await FlutterImageCompress.compressWithFile(
+  //       imageFile.path,
+  //       minWidth: 800,
+  //       minHeight: 600,
+  //       quality: 85,
+  //     );
+  //
+  //     if (result != null) {
+  //       String base64Image = base64Encode(result);
+  //
+  //       setState(() {
+  //         nameController.text = image.name;
+  //         onBase64Encoded(base64Image);
+  //       });
+  //     }
+  //   }
+  // }
+
   Future<void> _pickImage({
     required TextEditingController nameController,
     required Function(String) onBase64Encoded,
   }) async {
+    // Show the dialog and get the selected image source
+    ImageSource? source = await _showImageSourceDialog();
+
+    // Check if the user selected an image source, if not, return early
+    if (source == null) {
+      return; // User canceled the dialog, so we don't proceed further
+    }
+
     final ImagePicker _picker = ImagePicker();
     final XFile? image = await _picker.pickImage(
-      source: await _showImageSourceDialog(),
+      source: source, // Use the selected source
     );
 
     if (image != null) {
       File imageFile = File(image.path);
 
-      // Compress image
+      // Compress the image
       final result = await FlutterImageCompress.compressWithFile(
         imageFile.path,
         minWidth: 800,
@@ -180,24 +310,57 @@ class _RegistrationPageState extends State<RegistrationPage> {
     }
   }
 
-  Future<ImageSource> _showImageSourceDialog() async {
-    return await showDialog<ImageSource>(
+
+  Future<ImageSource?> _showImageSourceDialog() async {
+    return await showDialog<ImageSource?>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Choose Image Source'),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Choose Image Source'),
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+        content: const Text('Please select the image source to upload.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, ImageSource.camera),
-            child: Text('Camera'),
+            child: const Text('Camera'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, ImageSource.gallery),
-            child: Text('Gallery'),
+            child: const Text('Gallery'),
           ),
         ],
       ),
-    ) ?? ImageSource.gallery;
+    );
   }
+
+  // Future<ImageSource> _showImageSourceDialog() async {
+  //   return await showDialog<ImageSource>(
+  //         context: context,
+  //         builder: (context) => AlertDialog(
+  //           title: const Text('Choose Image Source'),
+  //           actions: [
+  //             TextButton(
+  //               onPressed: () => Navigator.pop(context, ImageSource.camera),
+  //               child: const Text('Camera'),
+  //             ),
+  //             TextButton(
+  //               onPressed: () => Navigator.pop(context, ImageSource.gallery),
+  //               child: const Text('Gallery'),
+  //             ),
+  //           ],
+  //         ),
+  //       ) ??
+  //       ImageSource.gallery;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -217,12 +380,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     height: 230,
                   ),
                   AnimatedSwitcher(
-                    duration: Duration(milliseconds: 500),
+                    duration: const Duration(milliseconds: 500),
                     child: showBusinessInfo
                         ? _buildBusinessInfoCard()
                         : _buildPersonalInfoCard(),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -251,15 +414,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   TextButton(
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
+                        MaterialPageRoute(builder: (context) => const LoginPage()),
                       );
                     },
-                    child: Text(
+                    child: const Text(
                       "Already have an account? Login",
                       style: TextStyle(
                         color: Colors.black,
@@ -285,17 +448,23 @@ class _RegistrationPageState extends State<RegistrationPage> {
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            Text(
+            const Text(
               'Personal Information',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             TextFormField(
+              inputFormatters: [
+                FilteringTextInputFormatter(RegExp(r'[a-zA-Z ]'), allow: true),
+              ],
+              decoration: const InputDecoration(
+                labelText: 'Username',
+               // helperText: 'Only accept letters from a to z',
+              ),
               controller: usernameController,
-              decoration: InputDecoration(labelText: 'Username'),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your username';
@@ -303,9 +472,22 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 return null;
               },
             ),
+            // TextFormField(
+            //   controller: usernameController,
+            //   decoration: const InputDecoration(labelText: 'Username'),
+            //   validator: (value) {
+            //     if (value == null || value.isEmpty) {
+            //       return 'Please enter your username';
+            //     }
+            //     return null;
+            //   },
+            // ),
             TextFormField(
               controller: emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: const InputDecoration(labelText: 'Email'),
+              inputFormatters: [
+                FilteringTextInputFormatter(RegExp(r'[a-zA-Z0-9-@/. ]'), allow: true),
+              ],
               keyboardType: TextInputType.emailAddress,
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -318,7 +500,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
             ),
             TextFormField(
               controller: phoneController,
-              decoration: InputDecoration(labelText: 'Phone Number'),
+              decoration: const InputDecoration(labelText: 'Phone Number'),
+              inputFormatters: [
+                FilteringTextInputFormatter(RegExp(r'[0-9]'), allow: true),
+              ],
               keyboardType: TextInputType.phone,
               maxLength: 10,
               validator: (value) {
@@ -332,29 +517,53 @@ class _RegistrationPageState extends State<RegistrationPage> {
             ),
             TextFormField(
               controller: mailingAddressController,
-              decoration: InputDecoration(labelText: 'Mailing Address'),
+              decoration: const InputDecoration(labelText: 'Mailing Address'),
+              inputFormatters: [
+                FilteringTextInputFormatter(RegExp(r'[a-zA-Z0-9,:\-@/. ]'), allow: true),
+              ],
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your mailing address';
                 }
-                return null;
+                // // Check if the input contains only allowed characters
+                // if (!RegExp(r'^[a-zA-Z0-9,:\-@/.]+$').hasMatch(value)) {
+                //   return 'Please enter a valid mailing address';
+                // }
+                return null; // Input is valid
               },
             ),
+            // TextFormField(
+            //   controller: mailingAddressController,
+            //   decoration: const InputDecoration(labelText: 'Mailing Address'),
+            //   validator: (value) {
+            //     if (value == null || value.isEmpty) {
+            //       return 'Please enter your mailing address';
+            //     }
+            //     return null;
+            //   },
+            // ),
             TextFormField(
               controller: deliveryAddressController,
-              decoration: InputDecoration(labelText: 'Delivery Address'),
+              decoration: const InputDecoration(labelText: 'Delivery Address'),
+              inputFormatters: [
+                FilteringTextInputFormatter(RegExp(r'[a-zA-Z0-9,:\-@/ ]'), allow: true),
+              ],
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your delivery address';
                 }
-                return null;
+                // Check if the input contains only allowed characters
+                if (!RegExp(r'^[a-zA-Z0-9,:\-@/ ]+$').hasMatch(value)) {
+                  return 'Please enter a valid mailing address';
+                }
+                return null; // Input is valid
               },
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Select Category:',
                   style: TextStyle(
                     fontSize: 16,
@@ -365,7 +574,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   children: [
                     Expanded(
                       child: RadioListTile<String>(
-                        title: Text('Pharma'),
+                        title: const Text('Pharma'),
                         value: 'Pharma',
                         groupValue: selectedCategory,
                         onChanged: (value) {
@@ -377,7 +586,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     ),
                     Expanded(
                       child: RadioListTile<String>(
-                        title: Text('General'),
+                        title: const Text('General'),
                         value: 'General',
                         groupValue: selectedCategory,
                         onChanged: (value) {
@@ -407,20 +616,24 @@ class _RegistrationPageState extends State<RegistrationPage> {
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            Text(
+            const Text(
               'Business Information',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             if (selectedCategory == 'Pharma') ...[
               TextFormField(
-                controller: dnNoController,
-                decoration: InputDecoration(labelText: 'DN Number'),
+                controller: dlNoController,
+                decoration: const InputDecoration(labelText: 'DL Number'),
+                inputFormatters: [
+                  FilteringTextInputFormatter(RegExp(r'[a-zA-Z0-9]'), allow: true),
+                ],
                 validator: (value) {
-                  if (selectedCategory == 'Pharma' && (value == null || value.isEmpty)) {
+                  if (selectedCategory == 'Pharma' &&
+                      (value == null || value.isEmpty)) {
                     return 'Please enter DN Number';
                   }
                   return null;
@@ -432,7 +645,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 decoration: InputDecoration(
                   labelText: 'DL Picture',
                   suffixIcon: IconButton(
-                    icon: Icon(Icons.camera_alt),
+                    icon: const Icon(Icons.camera_alt),
                     onPressed: () {
                       _pickImage(
                         nameController: dlPicNameController,
@@ -444,7 +657,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   ),
                 ),
                 validator: (value) {
-                  if (selectedCategory == 'Pharma' && (value == null || value.isEmpty)) {
+                  if (selectedCategory == 'Pharma' &&
+                      (value == null || value.isEmpty)) {
                     return 'Please provide DL Picture';
                   }
                   return null;
@@ -452,10 +666,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
               ),
               TextFormField(
                 controller: dlExpireDateController,
-                decoration: InputDecoration(labelText: 'DL Expiry Date'),
+                decoration: const InputDecoration(labelText: 'DL Expiry Date'),
                 onTap: () => _selectDate(dlExpireDateController),
                 validator: (value) {
-                  if (selectedCategory == 'Pharma' && (value == null || value.isEmpty)) {
+                  if (selectedCategory == 'Pharma' &&
+                      (value == null || value.isEmpty)) {
                     return 'Please provide DL Expiry Date';
                   }
                   return null;
@@ -464,7 +679,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
             ],
             TextFormField(
               controller: aadharNoController,
-              decoration: InputDecoration(labelText: 'Aadhar Number'),
+              decoration: const InputDecoration(labelText: 'Aadhar Number'),
+              inputFormatters: [
+                FilteringTextInputFormatter(RegExp(r'[0-9]'), allow: true),
+              ],
               keyboardType: TextInputType.number,
               maxLength: 12,
               validator: (value) {
@@ -482,7 +700,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
               decoration: InputDecoration(
                 labelText: 'Aadhar Picture',
                 suffixIcon: IconButton(
-                  icon: Icon(Icons.camera_alt),
+                  icon: const Icon(Icons.camera_alt),
                   onPressed: () {
                     _pickImage(
                       nameController: aadharPicNameController,
@@ -502,7 +720,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
             ),
             TextFormField(
               controller: gstNoController,
-              decoration: InputDecoration(labelText: 'GST Number'),
+              decoration: const InputDecoration(labelText: 'GST Number'),
+              inputFormatters: [
+                FilteringTextInputFormatter(RegExp(r'[a-zA-Z0-9]'), allow: true),
+              ],
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter GST number';
@@ -516,7 +737,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
               decoration: InputDecoration(
                 labelText: 'GST Document',
                 suffixIcon: IconButton(
-                  icon: Icon(Icons.camera_alt),
+                  icon: const Icon(Icons.camera_alt),
                   onPressed: () {
                     _pickImage(
                       nameController: gstDocNameController,
@@ -536,7 +757,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
             ),
             TextFormField(
               controller: tradeLicController,
-              decoration: InputDecoration(labelText: 'Trade License Number'),
+              decoration: const InputDecoration(labelText: 'Trade License Number'),
+              inputFormatters: [
+                FilteringTextInputFormatter(RegExp(r'[a-zA-Z0-9]'), allow: true),
+              ],
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter Trade License Number';
@@ -546,10 +770,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
             ),
             TextFormField(
               controller: panNoController,
-              decoration: InputDecoration(labelText: 'PAN Number'),
+              decoration: const InputDecoration(labelText: 'PAN Number'),
+              inputFormatters: [
+                FilteringTextInputFormatter(RegExp(r'[a-zA-Z0-9]'), allow: true),
+              ],
+              maxLength: 10,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter PAN Number';
+                }else if (value.length != 10) {
+                  return 'PAN number must be contains 10 character ';
                 }
                 return null;
               },
